@@ -1,0 +1,40 @@
+#ifndef RETROLINK_TUSB_CONFIG_H
+#define RETROLINK_TUSB_CONFIG_H
+
+#include "retrolink/board_config.h"
+
+#ifndef CFG_TUSB_MCU
+#define CFG_TUSB_MCU OPT_MCU_RP2040
+#endif
+
+#ifndef CFG_TUSB_OS
+#define CFG_TUSB_OS OPT_OS_PICO
+#endif
+#define CFG_TUSB_DEBUG 0
+
+#define CFG_TUD_ENABLED 0
+#define CFG_TUH_ENABLED 1
+
+#define CFG_TUSB_RHPORT0_MODE (OPT_MODE_HOST | OPT_MODE_FULL_SPEED)
+
+#define BOARD_TUH_RHPORT 0
+#define BOARD_TUH_RHPORT_SPEED OPT_MODE_FULL_SPEED
+
+#ifndef CFG_TUH_RPI_PIO_USB
+#define CFG_TUH_RPI_PIO_USB 1
+#endif
+
+#define CFG_TUH_RPI_PIO_USB_DP_PIN RETROLINK_USB_HOST_DP_GPIO
+
+#define CFG_TUH_ENUMERATION_BUFSIZE 256
+#define CFG_TUH_DEVICE_MAX 4
+#define CFG_TUH_HUB 1
+#define CFG_TUH_HID 4
+
+#define CFG_TUH_ENDPOINT_MAX 8
+#define CFG_TUH_INTERFACE_MAX 8
+
+#define CFG_TUSB_MEM_SECTION
+#define CFG_TUSB_MEM_ALIGN __attribute__((aligned(4)))
+
+#endif

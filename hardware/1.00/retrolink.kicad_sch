@@ -1,0 +1,21 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "4f6f6a63-8b7d-4987-97ef-747f8f1c5c10")
+	(paper "A3")
+	(title_block
+		(title "The Retro Hacker RetroLink")
+		(date "2026-08-01")
+		(rev "1.00")
+		(company "The Retro Hacker")
+		(comment 1 "RP2040 Zero USB HID to MSX DB9 adapter")
+	)
+	(lib_symbols)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)
