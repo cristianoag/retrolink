@@ -49,7 +49,7 @@ Any assumption above must be revisited when electrical measurements, MSX model c
 
 ### USB-C On RP2040 Zero
 
-Keep the RP2040 Zero USB-C connector dedicated to development, programming, and bootloader access for hardware revision `1.00`.
+Keep the RP2040 Zero USB-C connector dedicated to development, programming, bootloader access, and firmware debug over USB CDC for hardware revision `1.00`.
 
 The installed adapter power source is DB9 pin 5 from the MSX port. The PCB must include a series 1N5819 Schottky diode from DB9 pin 5 to the board 5 V rail so MSX power can feed RetroLink, but RP2040 Zero USB-C power cannot backfeed the MSX port during programming.
 
@@ -188,7 +188,7 @@ Recommended firmware modules:
 | `config` | Build-time or runtime configuration for board revision and device behavior. |
 | `diagnostics` | Optional debug state, fault reporting, and validation hooks. |
 
-Firmware version `1.00` starts with a USB HID host bring-up behavior: connect a USB joystick or gamepad to the USB-A host port and pulse the RP2040 Zero status LED whenever a HID report contains newly asserted button/report bits.
+Firmware version `1.00` starts with USB-C CDC debug and USB HID host bring-up behavior: connect a USB joystick or gamepad to the USB-A host port and monitor boot, host initialization, HID mount/unmount, receive failures, and button/report activity over the USB-C CDC serial interface. The RP2040 Zero status LED pulses whenever a HID report contains newly asserted button/report bits.
 
 Recommended firmware constants for firmware version `1.00` and hardware revision `1.00`:
 
@@ -227,7 +227,7 @@ The build is configured to copy the UF2 artifact to:
 firmware/retrolink-1.00.uf2
 ```
 
-The current firmware scaffold depends on TinyUSB host support and the RP2040 PIO USB host path for the USB-A connector wired to GPIO 2 and GPIO 3.
+The current firmware scaffold depends on TinyUSB device CDC over the native USB-C port, TinyUSB host support, and the RP2040 PIO USB host path for the USB-A connector wired to GPIO 2 and GPIO 3.
 
 ## Reserved GPIO Pins
 

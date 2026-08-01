@@ -10,6 +10,7 @@
 - Added a `software/Makefile` wrapper that builds the versioned UF2 artifact into `firmware/`.
 - Updated `software/Makefile` to use Pico SDK-managed CMake, Ninja, Python, and SDK paths by default on Windows.
 - Added Pico-PIO-USB as a repo-managed submodule and linked it into the firmware build for GPIO-based USB host support.
+- Enabled USB-C CDC debug logging while keeping the USB-A connector as the Pico-PIO-USB HID host port.
 
 ## Hardware
 

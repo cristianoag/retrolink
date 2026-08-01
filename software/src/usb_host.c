@@ -3,8 +3,10 @@
 #include <string.h>
 
 #include "pico/stdlib.h"
+#include "pio_usb.h"
 #include "tusb.h"
 
+#include "retrolink/debug_cdc.h"
 #include "retrolink/status_led.h"
 
 #define RETROLINK_MAX_HID_SLOTS 8u
@@ -86,7 +88,16 @@ static void store_report(hid_slot_t *slot, uint8_t const *report, uint16_t repor
 
 void usb_host_init(void)
 {
-    tusb_init();
+    pio_usb_configuration_t pio_cfg = PIO_USB_DEFAULT_CONFIG;
+    pio_cfg.pin_dp = RETROLINK_USB_HOST_DP_GPIO;
+
+    tuh_configure(BOARD_TUH_RHPORT, TUH_CFGID_RPI_PIO_USB_CONFIGURATION, &pio_cfg);
+    tuh_init(BOARD_TUH_RHPORT);
+
+    debug_cdc_log("USB host initialized on root port %u, D+ GPIO%u, D- GPIO%u\r\n",
+                  BOARD_TUH_RHPORT,
+                  RETROLINK_USB_HOST_DP_GPIO,
+                  RETROLINK_USB_HOST_DM_GPIO);
 }
 
 void usb_host_task(void)
@@ -98,12 +109,26 @@ void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance, uint8_t const *desc_re
     (void)desc_report;
     (void)desc_len;
 
+    uint16_t vid = 0;
+    uint16_t pid = 0;
+    tuh_vid_pid_get(dev_addr, &vid, &pid);
+
+    debug_cdc_log("HID mounted: addr=%u instance=%u vid=%04x pid=%04x protocol=%u\r\n",
+                  dev_addr,
+                  instance,
+                  vid,
+                  pid,
+                  tuh_hid_interface_protocol(dev_addr, instance));
+
     claim_slot(dev_addr, instance);
-    tuh_hid_receive_report(dev_addr, instance);
+    if (!tuh_hid_receive_report(dev_addr, instance)) {
+        debug_cdc_log("HID receive request failed: addr=%u instance=%u\r\n", dev_addr, instance);
+    }
 }
 
 void tuh_hid_umount_cb(uint8_t dev_addr, uint8_t instance)
 {
+    debug_cdc_log("HID unmounted: addr=%u instance=%u\r\n", dev_addr, instance);
     release_slot(dev_addr, instance);
 }
 
@@ -112,11 +137,21 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t cons
     hid_slot_t *slot = claim_slot(dev_addr, instance);
     if (slot != NULL) {
         if (report_has_new_pressed_bit(slot, report, report_len)) {
+            debug_cdc_log("HID press detected: addr=%u instance=%u len=%u first=%02x %02x %02x %02x\r\n",
+                          dev_addr,
+                          instance,
+                          report_len,
+                          report_len > 0 ? report[0] : 0,
+                          report_len > 1 ? report[1] : 0,
+                          report_len > 2 ? report[2] : 0,
+                          report_len > 3 ? report[3] : 0);
             status_led_pulse();
         }
 
         store_report(slot, report, report_len);
     }
 
-    tuh_hid_receive_report(dev_addr, instance);
+    if (!tuh_hid_receive_report(dev_addr, instance)) {
+        debug_cdc_log("HID receive re-request failed: addr=%u instance=%u\r\n", dev_addr, instance);
+    }
 }

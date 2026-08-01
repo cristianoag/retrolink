@@ -42,6 +42,8 @@ The Makefile uses the same CMake target and keeps the firmware version in the UF
 
 ## Current Behavior
 
-Firmware version `1.00` initializes TinyUSB host mode and listens for USB HID reports from a connected joystick or gamepad. When a report contains newly asserted bits in the first report bytes, the firmware pulses the RP2040 Zero status LED.
+Firmware version `1.00` initializes USB CDC debug on the RP2040 Zero USB-C port and TinyUSB host mode on the USB-A port through Pico-PIO-USB. It listens for USB HID reports from a connected joystick or gamepad. When a report contains newly asserted bits in the first report bytes, the firmware pulses the RP2040 Zero status LED and writes debug messages to the USB-C CDC serial interface.
+
+Use a serial terminal on the USB-C CDC device to monitor boot, host initialization, HID mount/unmount, receive-request failures, and button/report activity.
 
 The status LED implementation assumes the common RP2040 Zero onboard WS2812-compatible LED on GPIO 16. If a board variant uses a different LED circuit, update `include/retrolink/board_config.h` before building.

@@ -20,7 +20,9 @@ pico_sdk_init()
 
 add_executable(retrolink
     src/main.c
+    src/debug_cdc.c
     src/status_led.c
+    src/usb_descriptors.c
     src/usb_host.c
 )
 
@@ -44,11 +46,13 @@ endif()
 target_compile_definitions(retrolink PRIVATE
     RETROLINK_FW_VERSION="${RETROLINK_FW_VERSION}"
     RETROLINK_HW_REVISION="1.00"
+    PIO_USB_USE_TINYUSB
 )
 
 target_link_libraries(retrolink
     pico_stdlib
     hardware_pio
+    tinyusb_device
     tinyusb_host
     tinyusb_board
 )
@@ -64,7 +68,7 @@ if(TARGET tinyusb_pico_pio_usb)
 endif()
 
 pico_enable_stdio_usb(retrolink 0)
-pico_enable_stdio_uart(retrolink 1)
+pico_enable_stdio_uart(retrolink 0)
 pico_add_extra_outputs(retrolink)
 
 set(RETROLINK_UF2_OUTPUT_DIR ${CMAKE_CURRENT_LIST_DIR}/../firmware)
