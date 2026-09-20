@@ -7,18 +7,19 @@
 #include "tusb.h"
 
 #include "retrolink/debug_cdc.h"
+#include "retrolink/hid_joystick.h"
+#include "retrolink/msx_port.h"
 #include "retrolink/status_led.h"
 
 #define RETROLINK_MAX_HID_SLOTS 8u
-#define RETROLINK_MAX_REPORT_BYTES 64u
-#define RETROLINK_BUTTON_SCAN_BYTES 8u
 
 typedef struct {
     bool in_use;
     uint8_t dev_addr;
     uint8_t instance;
-    uint8_t last_report[RETROLINK_MAX_REPORT_BYTES];
-    uint16_t last_report_len;
+    bool supported;
+    joystick_state_t state;
+    hid_joystick_t joystick;
 } hid_slot_t;
 
 static hid_slot_t hid_slots[RETROLINK_MAX_HID_SLOTS];
@@ -46,8 +47,6 @@ static hid_slot_t *claim_slot(uint8_t dev_addr, uint8_t instance)
             hid_slots[index].in_use = true;
             hid_slots[index].dev_addr = dev_addr;
             hid_slots[index].instance = instance;
-            hid_slots[index].last_report_len = 0;
-            memset(hid_slots[index].last_report, 0, sizeof(hid_slots[index].last_report));
             return &hid_slots[index];
         }
     }
@@ -63,27 +62,26 @@ static void release_slot(uint8_t dev_addr, uint8_t instance)
     }
 }
 
-static bool report_has_new_pressed_bit(hid_slot_t const *slot, uint8_t const *report, uint16_t report_len)
+static void update_msx_state(void)
 {
-    uint16_t scan_len = report_len < RETROLINK_BUTTON_SCAN_BYTES ? report_len : RETROLINK_BUTTON_SCAN_BYTES;
-
-    for (uint16_t index = 0; index < scan_len; ++index) {
-        uint8_t previous = index < slot->last_report_len ? slot->last_report[index] : 0u;
-        if ((uint8_t)(report[index] & (uint8_t)~previous) != 0u) {
-            return true;
-        }
+    joystick_state_t state = 0;
+    for (size_t index = 0; index < RETROLINK_MAX_HID_SLOTS; ++index) {
+        if (hid_slots[index].in_use) state |= hid_slots[index].state;
     }
-
-    return false;
+    msx_port_set_state(state);
 }
 
-static void store_report(hid_slot_t *slot, uint8_t const *report, uint16_t report_len)
+static void request_report(hid_slot_t *slot)
 {
-    uint16_t copy_len = report_len < RETROLINK_MAX_REPORT_BYTES ? report_len : RETROLINK_MAX_REPORT_BYTES;
-
-    memset(slot->last_report, 0, sizeof(slot->last_report));
-    memcpy(slot->last_report, report, copy_len);
-    slot->last_report_len = copy_len;
+    if (!tuh_hid_receive_report(slot->dev_addr, slot->instance)) {
+        slot->state = 0;
+        for (uint8_t index = 0; index < slot->joystick.report_count; ++index) {
+            slot->joystick.reports[index].state = 0;
+        }
+        update_msx_state();
+        debug_cdc_log("HID receive request failed; outputs released: addr=%u instance=%u\r\n",
+                      slot->dev_addr, slot->instance);
+    }
 }
 
 void usb_host_init(void)
@@ -106,9 +104,6 @@ void usb_host_task(void)
 
 void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance, uint8_t const *desc_report, uint16_t desc_len)
 {
-    (void)desc_report;
-    (void)desc_len;
-
     uint16_t vid = 0;
     uint16_t pid = 0;
     tuh_vid_pid_get(dev_addr, &vid, &pid);
@@ -120,38 +115,44 @@ void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance, uint8_t const *desc_re
                   pid,
                   tuh_hid_interface_protocol(dev_addr, instance));
 
-    claim_slot(dev_addr, instance);
-    if (!tuh_hid_receive_report(dev_addr, instance)) {
-        debug_cdc_log("HID receive request failed: addr=%u instance=%u\r\n", dev_addr, instance);
+    hid_slot_t *slot = claim_slot(dev_addr, instance);
+    if (slot == NULL) {
+        debug_cdc_log("HID slot capacity exceeded: addr=%u instance=%u\r\n", dev_addr, instance);
+        return;
     }
+    slot->state = 0;
+    slot->supported = hid_joystick_parse(&slot->joystick, desc_report, desc_len);
+    update_msx_state();
+    debug_cdc_log("HID joystick mapping: addr=%u instance=%u supported=%u fields=%u reports=%u descriptor_len=%u\r\n",
+                  dev_addr, instance, slot->supported, slot->joystick.field_count,
+                  slot->joystick.report_count, desc_len);
+    request_report(slot);
 }
 
 void tuh_hid_umount_cb(uint8_t dev_addr, uint8_t instance)
 {
     debug_cdc_log("HID unmounted: addr=%u instance=%u\r\n", dev_addr, instance);
     release_slot(dev_addr, instance);
+    update_msx_state();
 }
 
 void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t const *report, uint16_t report_len)
 {
-    hid_slot_t *slot = claim_slot(dev_addr, instance);
-    if (slot != NULL) {
-        if (report_has_new_pressed_bit(slot, report, report_len)) {
-            debug_cdc_log("HID press detected: addr=%u instance=%u len=%u first=%02x %02x %02x %02x\r\n",
-                          dev_addr,
-                          instance,
-                          report_len,
-                          report_len > 0 ? report[0] : 0,
-                          report_len > 1 ? report[1] : 0,
-                          report_len > 2 ? report[2] : 0,
-                          report_len > 3 ? report[3] : 0);
+    hid_slot_t *slot = find_slot(dev_addr, instance);
+    if (slot == NULL) return;
+    if (slot->supported) {
+        joystick_state_t previous = slot->state;
+        if (!hid_joystick_decode(&slot->joystick, report, report_len, &slot->state)) {
+            debug_cdc_log("HID invalid report; outputs released: addr=%u instance=%u len=%u\r\n",
+                          dev_addr, instance, report_len);
+        }
+        if ((slot->state & (joystick_state_t)~previous) != 0) {
             status_led_pulse();
         }
-
-        store_report(slot, report, report_len);
+        if (previous != slot->state) {
+            debug_cdc_log("HID joystick: addr=%u instance=%u state=%02x\r\n", dev_addr, instance, slot->state);
+        }
+        update_msx_state();
     }
-
-    if (!tuh_hid_receive_report(dev_addr, instance)) {
-        debug_cdc_log("HID receive re-request failed: addr=%u instance=%u\r\n", dev_addr, instance);
-    }
+    request_report(slot);
 }

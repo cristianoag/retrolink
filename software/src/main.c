@@ -4,6 +4,7 @@
 
 #include "retrolink/board_config.h"
 #include "retrolink/debug_cdc.h"
+#include "retrolink/msx_port.h"
 #include "retrolink/status_led.h"
 #include "retrolink/usb_host.h"
 
@@ -13,6 +14,7 @@ int main(void)
 
     status_led_init();
     debug_cdc_init();
+    msx_port_init();
     usb_host_init();
 
     debug_cdc_log("RetroLink firmware %s, hardware %s\r\n", RETROLINK_FW_VERSION, RETROLINK_HW_REVISION);

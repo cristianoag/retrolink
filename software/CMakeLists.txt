@@ -21,6 +21,8 @@ pico_sdk_init()
 add_executable(retrolink
     src/main.c
     src/debug_cdc.c
+    src/hid_joystick.c
+    src/msx_port.c
     src/status_led.c
     src/usb_descriptors.c
     src/usb_host.c

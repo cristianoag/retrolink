@@ -55,7 +55,7 @@ The Makefile defaults to the local Pico SDK-managed toolchain paths used on the 
 
 ## Current Firmware Behavior
 
-Firmware version `1.00` brings up USB HID host support for a joystick or gamepad connected to the USB-A port. When a HID report contains newly asserted button/report bits, the RP2040 Zero status LED pulses.
+Firmware version `1.00` decodes standard USB HID joystick/gamepad axes, hats, and buttons into six active-low MSX outputs: GPIO6-9 for up/down/left/right, GPIO10 for button A, and GPIO11 for button B. Button usages 1 and 2 map to A and B. Outputs release to high impedance when inactive. USB-C CDC provides diagnostics, and the RP2040 Zero status LED pulses on newly asserted controls. See [software/README.md](software/README.md#current-behavior) for supported layouts, decoder limits, and tests; physical controller/MSX validation remains required.
 
 The current status LED implementation assumes the common RP2040 Zero onboard WS2812-compatible LED on GPIO 16. Validate this against the exact board variant before treating the build as hardware-final.
 

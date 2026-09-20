@@ -188,7 +188,9 @@ Recommended firmware modules:
 | `config` | Build-time or runtime configuration for board revision and device behavior. |
 | `diagnostics` | Optional debug state, fault reporting, and validation hooks. |
 
-Firmware version `1.00` starts with USB-C CDC debug and USB HID host bring-up behavior: connect a USB joystick or gamepad to the USB-A host port and monitor boot, host initialization, HID mount/unmount, receive failures, and button/report activity over the USB-C CDC serial interface. The RP2040 Zero status LED pulses whenever a HID report contains newly asserted button/report bits.
+Firmware version `1.00` provides USB-C CDC debug and descriptor-based USB HID joystick/gamepad translation. Absolute X/Y axes, four/eight-way hats, and discrete D-pad usages drive up/down/left/right on GPIO6/7/8/9 (DB9 pins 1/2/3/4); button usages 1/2 drive A/B on GPIO10/11 (DB9 pins 6/7). Outputs assert low and release to high impedance through the documented level shifters. The first report is decoded directly, without neutral calibration. Axis thresholds are below 25% and above 75% of the descriptor's logical range, with the middle 50% neutral. Opposing directions cancel. GPIO12 / DB9 pin 8 is not driven in this joystick mode.
+
+States are combined across report IDs and interfaces. Detach, invalid reports, or failed receive requests release the affected interface's state; a receive-request failure requires reconnection. CDC reports mapping support and state changes, and the GPIO16 LED pulses on newly asserted controls. Vendor-specific protocols and mouse emulation are not implemented. See [software behavior and tests](../software/README.md#current-behavior) for decoder limits, public interfaces, and host-test commands. Compilation and simulated tests do not replace validation with the actual joystick and MSX hardware.
 
 Recommended firmware constants for firmware version `1.00` and hardware revision `1.00`:
 
@@ -204,7 +206,7 @@ Recommended firmware constants for firmware version `1.00` and hardware revision
 | `MSX_DOWN_GPIO` | `7` |
 | `MSX_LEFT_GPIO` | `8` |
 | `MSX_RIGHT_GPIO` | `9` |
-| `MSX_TRIGGER_A_GPIO` | `10` |
+| `MSX_TRIGGER_A_GPIO` | `10`, active-low output to DB9 pin 6 |
 | `MSX_TRIGGER_B_GPIO` | `11` |
 | `MSX_OUT_STROBE_GPIO` | `12` |
 | `MSX_5V_SENSE_GPIO` | `13` if fitted, otherwise disabled |
