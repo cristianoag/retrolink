@@ -31,6 +31,16 @@ Known board features:
 - Exposed GPIO pins: GPIO 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 26, 27, 28, and 29.
 - Boot and Reset buttons.
 
+## Current PCB And Assembly Files
+
+Hardware revision `1.00` now includes a [KiCad schematic](../hardware/1.00/retrolink.kicad_sch), [PCB layout](../hardware/1.00/retrolink.kicad_pcb), [interactive BOM](../hardware/1.00/bom/ibom.html), and [production outputs](../hardware/1.00/production). The [README PCB previews](../README.md#pcb-preview) show top and bottom 3D renders, not photographs of tested hardware. Open the iBOM HTML locally in a browser; GitHub's file view does not run the interactive page.
+
+The [exported BOM](../hardware/1.00/production/bom.csv) currently lists one each of RZ1 (RP2040 Zero), J1 (DE9 socket), J2 (USB-A receptacle), and D1 (value `1N5819`, footprint `D_SOD-123`). The [README component table](../README.md#pcb-components) records quantities, footprints, and replaceable AliExpress search links. These are sourcing placeholders, not approved parts or verified stock.
+
+The current export does not include the specified BSS138 channels, 10 kOhm pull-ups, USB data-line passives/ESD protection, or a separate VBUS current limiter. Their requirements below remain design requirements, not claims about the existing PCB implementation. Resolve these gaps and review schematic-to-PCB connectivity before manufacture or connection to an MSX; RP2040 GPIOs are not 5 V tolerant.
+
+D1 requires package reconciliation: a common axial DO-41 1N5819 does not fit the SOD-123 footprint. Confirm the exact SMD part number, polarity, ratings, and forward-voltage behavior, then synchronize the schematic value, PCB, and BOM. J1 currently uses `DSUB-9_Socket_EdgeMount_P2.77mm`; J2 uses `TE_6364372-2`. Verify connector mating and mechanical dimensions against the intended MSX and selected parts. File availability does not establish ERC/DRC, assembly, or electrical validation. Regenerate the iBOM and production exports after hardware changes.
+
 ## Design Assumptions
 
 - The RP2040 Zero USB-C connector remains available for programming, bootloader access, and development, but the installed RetroLink adapter is powered from the MSX DB9 connector.
@@ -38,10 +48,10 @@ Known board features:
 - RP2040 GPIO pins are 3.3 V logic and are not 5 V tolerant.
 - The MSX joystick port may expose 5 V logic or 5 V pull-ups; therefore, DB9 signal interfaces must protect the RP2040.
 - DB9 pin assignments follow the MSX General Purpose port convention unless later hardware documentation proves a different target requirement. Reference: [General Purpose port - MSX Wiki](https://www.msx.org/wiki/General_Purpose_port).
-- Hardware revision `1.00` uses BSS138 MOSFET level shifters with 10 kOhm pull-up resistors for DB9 signals that cross between the RP2040 3.3 V domain and the MSX 5 V domain.
+- Hardware revision `1.00` requires BSS138 MOSFET level shifters with 10 kOhm pull-up resistors for DB9 signals that cross between the RP2040 3.3 V domain and the MSX 5 V domain; these parts are not present in the current exported BOM.
 - DB9 pin 5 supplies the board 5 V rail for hardware revision `1.00` through a series 1N5819 Schottky diode; the usable current budget from the MSX port and the post-diode voltage still need validation on representative machines.
 - Firmware version `1.00` assumes the common RP2040 Zero onboard WS2812-compatible status LED is connected to GPIO 16. Validate this for the exact RP2040 Zero board variant before freezing the build.
-- USB host VBUS current requirements for connected devices are not yet validated. The first PCB should include current limiting and leave room for measurement.
+- USB host VBUS current requirements for connected devices are not yet validated. Current limiting and measurement access remain requirements to address before hardware release.
 
 Any assumption above must be revisited when electrical measurements, MSX model compatibility notes, or board revision documents are added.
 
@@ -95,7 +105,7 @@ Recommended optional VBUS control mapping:
 
 ## Recommended DB9 Connector Wiring
 
-Use a DB9 male connector for the RetroLink output to the MSX joystick port, unless the mechanical design requires otherwise.
+The current PCB uses a DE9 female socket with the `DSUB-9_Socket_EdgeMount_P2.77mm` footprint, superseding the earlier male-connector recommendation in this document. This describes the existing hardware files, not a firmware pin-assignment change. Verify mating compatibility, connector orientation, and pin numbering against the intended MSX before ordering or assembly.
 
 Standard MSX joystick-port signal convention for hardware revision `1.00`:
 
@@ -113,7 +123,7 @@ Standard MSX joystick-port signal convention for hardware revision `1.00`:
 
 ### Level Shifting Standard
 
-Hardware revision `1.00` uses a simple BSS138 bidirectional MOSFET level-shifter circuit with 10 kOhm pull-up resistors for DB9-side signals that cross between the RP2040 and MSX voltage domains.
+Hardware revision `1.00` requires a BSS138 bidirectional MOSFET level-shifter circuit with 10 kOhm pull-up resistors for DB9-side signals that cross between the RP2040 and MSX voltage domains. The current four-component PCB BOM does not implement these channels.
 
 Recommended circuit per shifted signal:
 
@@ -219,9 +229,11 @@ Firmware version `1.00` uses the Raspberry Pi Pico SDK build system from `softwa
 Expected build commands from the repository root:
 
 ```powershell
-cmake -S software -B software/build -DPICO_SDK_PATH=$env:PICO_SDK_PATH
-cmake --build software/build
+git submodule update --init --recursive
+make -C software
 ```
+
+The Makefile supplies Pico SDK, toolchain, and Pico-PIO-USB paths. See [software build instructions](../software/README.md#build) for prerequisites and overrides on other machines.
 
 The build is configured to copy the UF2 artifact to:
 
@@ -229,7 +241,7 @@ The build is configured to copy the UF2 artifact to:
 firmware/retrolink-1.00.uf2
 ```
 
-The current firmware scaffold depends on TinyUSB device CDC over the native USB-C port, TinyUSB host support, and the RP2040 PIO USB host path for the USB-A connector wired to GPIO 2 and GPIO 3.
+The current firmware uses TinyUSB device CDC on native USB root port 0, TinyUSB host on Pico-PIO-USB root port 1, and a 120 MHz system clock. The USB-A data pair is wired to GPIO2 (D+) and GPIO3 (D-).
 
 ## Reserved GPIO Pins
 
@@ -248,6 +260,9 @@ Potential future uses:
 
 Before freezing hardware revision `1.00`, validate and document:
 
+- Reconciliation of the current four-component PCB/BOM with the required level shifting, pull-ups, USB protection, and VBUS current limiting.
+- D1's exact SOD-123-compatible part number and J1/J2 connector mating, mounting geometry, and pin numbering.
+- Schematic ERC, PCB DRC, and synchronization of the PCB, iBOM, production BOM, and fabrication outputs.
 - USB host implementation choice and exact required D+/D- passive components.
 - Pico SDK/TinyUSB host build using the selected PIO USB host configuration.
 - RP2040 Zero status LED GPIO and WS2812 timing on the exact board variant.
@@ -266,7 +281,8 @@ Before freezing hardware revision `1.00`, validate and document:
 
 ## Open Questions
 
-- Which exact USB host implementation will be used for firmware version `1.00`: TinyUSB with native host support, TinyUSB over a PIO USB backend, or a separate PIO USB integration layer?
+- Which exact SOD-123 diode and connector listings will be qualified for the current footprints?
+- How will the missing level-shifting and USB protection requirements be incorporated into the PCB before release?
 - Is GPIO 16 correct for the onboard status LED on the exact RP2040 Zero board variant used in production?
 - What maximum USB device current should RetroLink support?
 - What current limit should be used for USB-A VBUS when the board is powered from MSX DB9 pin 5?

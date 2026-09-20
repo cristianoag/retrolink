@@ -2,7 +2,7 @@
 
 ## Firmware
 
-### Firmware v1.00 - 2026-08-01
+### Firmware v1.00 - 2026-09-20
 
 - Defined initial firmware-facing module boundaries and GPIO constants for the future RP2040 Zero implementation.
 - Set the initial firmware and specification version to `1.00`.
@@ -15,9 +15,10 @@
 
 ## Hardware
 
-### Hardware revision 1.00 - 2026-08-01
+### Hardware revision 1.00 - 2026-09-20
 
 - Documented the initial RP2040 Zero hardware baseline, USB-A host wiring, MSX DB9 wiring, and BSS138 level shifting guidance.
 - Changed the power architecture so DB9 pin 5 supplies the board 5 V rail with protected USB-C and USB-A power paths.
 - Selected a 1N5819 Schottky diode from DB9 pin 5 to the board 5 V rail to prevent USB-C programming power from backfeeding the MSX port.
 - Created the initial KiCad schematic/project for hardware revision `1.00` without creating a PCB layout.
+- Documented the current PCB layout, preview renders, iBOM, and four-part sourcing table, including unresolved protection and package requirements.
