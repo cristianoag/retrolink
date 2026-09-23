@@ -1,6 +1,6 @@
 # The Retro Hacker RetroLink
 
-RetroLink is an open-source hardware and firmware project for connecting controllers to classic MSX computers through the MSX DB9 General Purpose port. **RetroLink USB** connects USB HID joysticks and gamepads. **RetroLink MD** translates Mega Drive/Genesis 3-button and 6-button controller signals into MSX joystick signals. Both variants use an RP2040 Zero; physical and electrical validation remain required.
+RetroLink is an open-source hardware and firmware project for connecting controllers to classic MSX computers through the MSX DB9 General Purpose port. **RetroLink USB** connects USB HID joysticks and gamepads. **RetroLink MD** translates Mega Drive/Genesis 3-button and 6-button controller signals into MSX joystick signals. Both variants use an RP2040 Zero.
 
 ### RetroLink USB
 
@@ -17,7 +17,7 @@ The latest RetroLink USB hardware revision, `1.10`, uses an RP2040 Zero module o
 
 ![RetroLink MD revision 1.00 angled 3D render with RP2040 Zero and Mega Drive and MSX DE9 connectors](images/2026-09-23_15-54.png)
 
-RetroLink MD hardware revision `1.00` replaces USB-A controller input with a **male DE9 for the Mega Drive controller**, retaining a **female DE9 for the MSX**. Its separate firmware maps MD B/C to MSX triggers A/B and reads the MSX common signal. See the [MD firmware and wiring guide](software/md/README.md) before assembly or use; the current four-component BOM does not implement the required 5 V-safe signal interfaces.
+RetroLink MD hardware revision `1.00` replaces USB-A controller input with a **male DE9 for the Mega Drive controller**, retaining a **female DE9 for the MSX**. Its separate firmware maps MD B/C to MSX triggers A/B and reads the MSX common signal. 
 
 ## PCB Preview
 
@@ -103,7 +103,7 @@ The controller data pins are **MD_UP=GPIO28, MD_BA=GPIO27, MD_DOWN=GPIO26, MD_TH
 
 Firmware `1.00` reads standard 3- and 6-button pads, maps directions and B/C to the six MSX controls, and cancels opposing directions. A/Start/X/Y/Z/Mode are decoded but unmapped. Absent, invalid, or over-time frames release controls; reconnecting restores normal polling. GPIO5 monitors MSX OUT/common and releases all outputs when high. USB-C CDC provides diagnostics and GPIO16 LED pulses indicate newly asserted controls.
 
-The MD [schematic](hardware/md/1.00/retrolink.kicad_sch), [PCB](hardware/md/1.00/retrolink.kicad_pcb), and [BOM](hardware/md/1.00/production/bom.csv) are available. **Do not connect 5 V signals directly to RP2040 GPIOs.** MD pin 8 is ground, while MSX ground is pin 9 and MSX pin 8 is a driven signal. Review the [electrical prerequisites and hardware test checklist](software/md/README.md) before powering the adapter.
+The MD [schematic](hardware/md/1.00/retrolink.kicad_sch), [PCB](hardware/md/1.00/retrolink.kicad_pcb), and [BOM](hardware/md/1.00/production/bom.csv) are available. MD pin 8 is ground, while MSX ground is pin 9 and MSX pin 8 is a driven signal. 
 
 The MD build disables the RP2040 B0/B1 USB enumeration workaround because it takes over GPIO15 (MD SELECT); B2 silicon is preferred for USB-C diagnostics.
 
