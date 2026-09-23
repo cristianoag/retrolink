@@ -1,3 +1,16 @@
 # RetroLink MD Hardware
 
-Reserved for future Mega Drive joystick-to-MSX hardware. No schematic, PCB, pin mapping, or validated hardware revision is available yet. Existing USB hardware revisions live in [hardware/usb](../usb/).
+RetroLink MD revision [1.00](1.00/) connects a Mega Drive controller's female DE9 plug to a male DE9 on the adapter; the adapter's female DE9 connects to the MSX. An RP2040 Zero translates the controller protocol into MSX joystick signals.
+
+- [Schematic](1.00/retrolink.kicad_sch)
+- [PCB](1.00/retrolink.kicad_pcb)
+- [Project](1.00/retrolink.kicad_pro)
+- [Exported BOM](1.00/production/bom.csv)
+- [Renders](../../README.md#retrolink-md-revision-100)
+- [Firmware, exact GPIO assignments, and electrical prerequisites](../../software/md/README.md)
+
+MD D0/D1/D2/D3/D4/D5 use GPIO28/26/14/12/27/13; TH/SELECT uses GPIO15. MSX up/A/down/B/left/common/right use GPIO0/1/2/3/4/5/6. GPIO16 is the status LED. No USB-A host or MSX voltage-sense input is assigned in this variant.
+
+**Not electrically validated.** The current BOM lists only RZ1, J1, J2, and D1. It does not include the level conversion and protection needed between 5 V controller/MSX signals and the 3.3 V RP2040. Verify these circuits, power budget, connector numbering, common-line timing, and USB-C power isolation before powering the assembled board. MD pin 8 is ground; MSX pin 8 is not.
+
+USB hardware is maintained separately under [hardware/usb](../usb/).

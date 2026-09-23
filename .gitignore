@@ -1,3 +1,5 @@
 .github/**
 software/build/
 software/usb/build/
+software/md/build/
+software/md/build-tests/

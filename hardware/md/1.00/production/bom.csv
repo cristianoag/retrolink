@@ -1,0 +1,5 @@
+﻿Designator,Footprint,Quantity,Value,LCSC Part #
+D1,D_SOD-123,1,1N5819,
+J1,DSUB-9_Socket_EdgeMount_P2.77mm,1,DE9_Socket,
+J2,DSUB-9_Pins_EdgeMount_P2.77mm,1,DE9_Pins,
+RZ1,RP2040-Zero,1,RP2040-Zero,

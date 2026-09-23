@@ -8,7 +8,7 @@ Firmware version: `1.00`
 
 Hardware revision: `1.00`
 
-This document defines the initial hardware and firmware-facing specification for RetroLink USB, a USB HID adapter that connects modern USB joysticks and USB mice to classic MSX computers through the standard DB9 joystick port. It does not specify the planned RetroLink MD variant.
+This document defines the initial hardware and firmware-facing specification for RetroLink USB, a USB HID adapter that connects modern USB joysticks and USB mice to classic MSX computers through the standard DB9 joystick port. It does not specify the separate RetroLink MD variant; see the [MD wiring and firmware guide](../software/md/README.md).
 
 ## Goals
 
