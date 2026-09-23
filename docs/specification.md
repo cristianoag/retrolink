@@ -8,7 +8,7 @@ Firmware version: `1.00`
 
 Hardware revision: `1.00`
 
-This document defines the initial hardware and firmware-facing specification for RetroLink, a USB HID adapter that connects modern USB joysticks and USB mice to classic MSX computers through the standard DB9 joystick port.
+This document defines the initial hardware and firmware-facing specification for RetroLink USB, a USB HID adapter that connects modern USB joysticks and USB mice to classic MSX computers through the standard DB9 joystick port. It does not specify the planned RetroLink MD variant.
 
 ## Goals
 
@@ -16,7 +16,7 @@ This document defines the initial hardware and firmware-facing specification for
 - Provide a USB-A host connector for USB HID joystick and mouse devices.
 - Present MSX-compatible joystick and mouse signals through a DB9 connector.
 - Keep the firmware architecture compatible with the Raspberry Pi Pico SDK and TinyUSB where practical.
-- Keep firmware source code under `software/` and generated UF2 artifacts under `firmware/`.
+- Keep USB firmware source code under `software/usb/` and generated UF2 artifacts under `firmware/usb/`.
 - Avoid direct 5 V exposure on RP2040 GPIO pins.
 - Keep connector assignments and electrical assumptions documented from the first revision.
 
@@ -33,9 +33,9 @@ Known board features:
 
 ## Current PCB And Assembly Files
 
-Hardware revision `1.00` now includes a [KiCad schematic](../hardware/1.00/retrolink.kicad_sch), [PCB layout](../hardware/1.00/retrolink.kicad_pcb), [interactive BOM](../hardware/1.00/bom/ibom.html), and [production outputs](../hardware/1.00/production). The [README PCB previews](../README.md#pcb-preview) show top and bottom 3D renders, not photographs of tested hardware. Open the iBOM HTML locally in a browser; GitHub's file view does not run the interactive page.
+Hardware revision `1.00` now includes a [KiCad schematic](../hardware/usb/1.00/retrolink.kicad_sch), [PCB layout](../hardware/usb/1.00/retrolink.kicad_pcb), [interactive BOM](../hardware/usb/1.00/bom/ibom.html), and [production outputs](../hardware/usb/1.00/production). The [README PCB previews](../README.md#pcb-preview) show top and bottom 3D renders, not photographs of tested hardware. Open the iBOM HTML locally in a browser; GitHub's file view does not run the interactive page.
 
-The [exported BOM](../hardware/1.00/production/bom.csv) currently lists one each of RZ1 (RP2040 Zero), J1 (DE9 socket), J2 (USB-A receptacle), and D1 (value `1N5819`, footprint `D_SOD-123`). The [README component table](../README.md#pcb-components) records quantities, footprints, and replaceable AliExpress search links. These are sourcing placeholders, not approved parts or verified stock.
+The [exported BOM](../hardware/usb/1.00/production/bom.csv) currently lists one each of RZ1 (RP2040 Zero), J1 (DE9 socket), J2 (USB-A receptacle), and D1 (value `1N5819`, footprint `D_SOD-123`). The [README component table](../README.md#pcb-components) records quantities, footprints, and replaceable AliExpress search links. These are sourcing placeholders, not approved parts or verified stock.
 
 The current export does not include the specified BSS138 channels, 10 kOhm pull-ups, USB data-line passives/ESD protection, or a separate VBUS current limiter. Their requirements below remain design requirements, not claims about the existing PCB implementation. Resolve these gaps and review schematic-to-PCB connectivity before manufacture or connection to an MSX; RP2040 GPIOs are not 5 V tolerant.
 
@@ -182,7 +182,7 @@ For hardware revision `1.00`, a BSS138 channel may be used for a logic-level pre
 
 ## Firmware Architecture Implications
 
-Firmware source code lives under `software/`. Generated UF2 files live under `firmware/`.
+USB firmware source code lives under `software/usb/`. Generated USB UF2 files live under `firmware/usb/`.
 
 The wiring above should be reflected in firmware as board-level configuration, not scattered GPIO constants.
 
@@ -200,7 +200,7 @@ Recommended firmware modules:
 
 Firmware version `1.00` provides USB-C CDC debug and descriptor-based USB HID joystick/gamepad translation. Absolute X/Y axes, four/eight-way hats, and discrete D-pad usages drive up/down/left/right on GPIO6/7/8/9 (DB9 pins 1/2/3/4); button usages 1/2 drive A/B on GPIO10/11 (DB9 pins 6/7). Outputs assert low and release to high impedance through the documented level shifters. The first report is decoded directly, without neutral calibration. Axis thresholds are below 25% and above 75% of the descriptor's logical range, with the middle 50% neutral. Opposing directions cancel. GPIO12 / DB9 pin 8 is not driven in this joystick mode.
 
-States are combined across report IDs and interfaces. Detach, invalid reports, or failed receive requests release the affected interface's state; a receive-request failure requires reconnection. CDC reports mapping support and state changes, and the GPIO16 LED pulses on newly asserted controls. Vendor-specific protocols and mouse emulation are not implemented. See [software behavior and tests](../software/README.md#current-behavior) for decoder limits, public interfaces, and host-test commands. Compilation and simulated tests do not replace validation with the actual joystick and MSX hardware.
+States are combined across report IDs and interfaces. Detach, invalid reports, or failed receive requests release the affected interface's state; a receive-request failure requires reconnection. CDC reports mapping support and state changes, and the GPIO16 LED pulses on newly asserted controls. Vendor-specific protocols and mouse emulation are not implemented. See [software behavior and tests](../software/usb/README.md#current-behavior) for decoder limits, public interfaces, and host-test commands. Compilation and simulated tests do not replace validation with the actual joystick and MSX hardware.
 
 Recommended firmware constants for firmware version `1.00` and hardware revision `1.00`:
 
@@ -224,21 +224,21 @@ Recommended firmware constants for firmware version `1.00` and hardware revision
 
 ## Firmware Build
 
-Firmware version `1.00` uses the Raspberry Pi Pico SDK build system from `software/`.
+USB firmware version `1.00` uses the Raspberry Pi Pico SDK build system from `software/usb/`.
 
 Expected build commands from the repository root:
 
 ```powershell
 git submodule update --init --recursive
-make -C software
+make -C software/usb
 ```
 
-The Makefile supplies Pico SDK, toolchain, and Pico-PIO-USB paths. See [software build instructions](../software/README.md#build) for prerequisites and overrides on other machines.
+The Makefile supplies Pico SDK, toolchain, and Pico-PIO-USB paths. See [software build instructions](../software/usb/README.md#build) for prerequisites and overrides on other machines.
 
 The build is configured to copy the UF2 artifact to:
 
 ```text
-firmware/retrolink-1.00.uf2
+firmware/usb/retrolink-1.00.uf2
 ```
 
 The current firmware uses TinyUSB device CDC on native USB root port 0, TinyUSB host on Pico-PIO-USB root port 1, and a 120 MHz system clock. The USB-A data pair is wired to GPIO2 (D+) and GPIO3 (D-).

@@ -1,8 +1,8 @@
 # The Retro Hacker RetroLink
 
-RetroLink is an open-source hardware and firmware project for connecting modern USB HID joysticks and mice to classic MSX computers through the MSX DB9 General Purpose port.
+RetroLink is an open-source hardware and firmware project for connecting controllers to classic MSX computers through the MSX DB9 General Purpose port. The existing **RetroLink USB** variant connects USB HID joysticks and gamepads. A planned **RetroLink MD** variant will translate Mega Drive joystick signals to MSX signals; its design, software, and firmware have not been implemented yet.
 
-The first hardware revision uses an RP2040 Zero module on a custom adapter board with:
+The RetroLink USB hardware revision `1.00` uses an RP2040 Zero module on a custom adapter board with:
 
 - USB-A host connector for the USB HID device.
 - DB9 connector for the MSX joystick/general purpose port.
@@ -11,31 +11,31 @@ The first hardware revision uses an RP2040 Zero module on a custom adapter board
 
 ## PCB Preview
 
-Top view of hardware revision `1.00` (3D render):
+Top view of RetroLink USB hardware revision `1.00` (3D render):
 
 ![RetroLink PCB top render with RP2040 Zero, USB-A connector, and DE9 socket](images/2026-09-20_19-45.png)
 
-Bottom view of hardware revision `1.00` (3D render):
+Bottom view of RetroLink USB hardware revision `1.00` (3D render):
 
 ![RetroLink PCB bottom render showing the diode and connector pads](images/2026-09-20_19-45_1.png)
 
-## Versions
+## Variants and Versions
 
-| Area | Version |
-| --- | --- |
-| Specification | `1.00` |
-| Firmware | `1.00` |
-| Hardware revision | `1.00` |
+| Variant | Input | Hardware | Software and firmware |
+| --- | --- | --- | --- |
+| RetroLink USB | USB HID joystick/gamepad | Revisions under [hardware/usb](hardware/usb), including `1.00` | [USB source](software/usb) and [UF2 artifacts](firmware/usb); firmware `1.00` |
+| RetroLink MD | Mega Drive joystick | [hardware/md](hardware/md) reserved for the future design | [software/md](software/md) and [firmware/md](firmware/md) reserved; not yet implemented |
 
-See [docs/specification.md](docs/specification.md) for the current technical specification and [docs/log.md](docs/log.md) for the version change log.
+The [USB specification](docs/specification.md) is version `1.00` and describes USB hardware revision `1.00`, not the planned MD variant. See [docs/log.md](docs/log.md) for the USB version change log. Revisions are organized within each variant; a hardware directory does not imply a corresponding firmware release.
 
 ## Repository Layout
 
 | Path | Purpose |
 | --- | --- |
-| [software](software) | RP2040 firmware source code using the Raspberry Pi Pico SDK, TinyUSB, and Pico-PIO-USB. |
-| [firmware](firmware) | Generated UF2 firmware artifacts. |
-| [hardware](hardware) | KiCad hardware project files by hardware revision. |
+| [software/usb](software/usb) | USB RP2040 source code using the Raspberry Pi Pico SDK, TinyUSB, and Pico-PIO-USB. |
+| [firmware/usb](firmware/usb) | USB UF2 firmware artifacts. |
+| [hardware/usb](hardware/usb) | USB KiCad project files by hardware revision. |
+| [software/md](software/md), [firmware/md](firmware/md), [hardware/md](hardware/md) | Placeholders for the planned Mega Drive-to-MSX variant; no build or hardware release yet. |
 | [images](images) | PCB preview renders used in this README. |
 | [docs](docs) | Technical specification and version log. |
 | [third_party/Pico-PIO-USB](third_party/Pico-PIO-USB) | Git submodule for GPIO-based USB host support on RP2040. |
@@ -51,34 +51,34 @@ git submodule update --init --recursive
 Build from the firmware source folder:
 
 ```powershell
-cd software
+cd software\usb
 make
 ```
 
 The build generates a versioned UF2 file:
 
 ```text
-firmware/retrolink-1.00.uf2
+firmware/usb/retrolink-1.00.uf2
 ```
 
 The Makefile defaults to the local Pico SDK-managed toolchain paths used on the development machine. Override `PICO_SDK_PATH`, `PICO_TOOLCHAIN_PATH`, `CMAKE`, `CMAKE_MAKE_PROGRAM`, `PYTHON3_EXECUTABLE`, `PICOTOOL_DIR`, `PIOASM_DIR`, or `PICO_PIO_USB_PATH` if your toolchain is installed elsewhere.
 
-## Current Firmware Behavior
+## RetroLink USB Firmware Behavior
 
-Firmware version `1.00` decodes standard USB HID joystick/gamepad axes, hats, and buttons into six active-low MSX outputs: GPIO6-9 for up/down/left/right, GPIO10 for button A, and GPIO11 for button B. Button usages 1 and 2 map to A and B. Outputs release to high impedance when inactive. USB-C CDC provides diagnostics, and the RP2040 Zero status LED pulses on newly asserted controls. See [software/README.md](software/README.md#current-behavior) for supported layouts, decoder limits, and tests; physical controller/MSX validation remains required.
+USB firmware version `1.00` decodes standard USB HID joystick/gamepad axes, hats, and buttons into six active-low MSX outputs: GPIO6-9 for up/down/left/right, GPIO10 for button A, and GPIO11 for button B. Button usages 1 and 2 map to A and B. Outputs release to high impedance when inactive. USB-C CDC provides diagnostics, and the RP2040 Zero status LED pulses on newly asserted controls. See [software/usb/README.md](software/usb/README.md#current-behavior) for supported layouts, decoder limits, and tests; physical controller/MSX validation remains required.
 
 The current status LED implementation assumes the common RP2040 Zero onboard WS2812-compatible LED on GPIO 16. Validate this against the exact board variant before treating the build as hardware-final.
 
-## Hardware Status
+## RetroLink USB Hardware Status
 
 Hardware revision `1.00` now includes the KiCad project, schematic, PCB layout, and generated assembly/fabrication outputs:
 
-- [hardware/1.00/retrolink.kicad_pro](hardware/1.00/retrolink.kicad_pro)
-- [hardware/1.00/retrolink.kicad_sch](hardware/1.00/retrolink.kicad_sch)
-- [hardware/1.00/retrolink.kicad_pcb](hardware/1.00/retrolink.kicad_pcb)
-- [Interactive BOM (iBOM)](hardware/1.00/bom/ibom.html)
-- [Exported component BOM](hardware/1.00/production/bom.csv)
-- [Production outputs](hardware/1.00/production)
+- [hardware/usb/1.00/retrolink.kicad_pro](hardware/usb/1.00/retrolink.kicad_pro)
+- [hardware/usb/1.00/retrolink.kicad_sch](hardware/usb/1.00/retrolink.kicad_sch)
+- [hardware/usb/1.00/retrolink.kicad_pcb](hardware/usb/1.00/retrolink.kicad_pcb)
+- [Interactive BOM (iBOM)](hardware/usb/1.00/bom/ibom.html)
+- [Exported component BOM](hardware/usb/1.00/production/bom.csv)
+- [Production outputs](hardware/usb/1.00/production)
 
 GitHub displays the iBOM HTML as a repository file, not an interactive page. Download the raw HTML or open the local file in a browser to use its component highlighting and assembly checklist.
 
@@ -86,7 +86,7 @@ GitHub displays the iBOM HTML as a repository file, not an interactive page. Dow
 
 ## PCB Components
 
-Quantities are per PCB, taken from the current [production BOM](hardware/1.00/production/bom.csv). AliExpress links are search placeholders, not verified product recommendations; replace them with selected listings after checking dimensions, pinout, package, and electrical ratings. Availability and seller quality have not been verified.
+Quantities are per USB PCB, taken from the current [production BOM](hardware/usb/1.00/production/bom.csv). AliExpress links are search placeholders, not verified product recommendations; replace them with selected listings after checking dimensions, pinout, package, and electrical ratings. Availability and seller quality have not been verified.
 
 | Reference | Component / BOM value | Quantity | PCB footprint / selection notes | AliExpress |
 | --- | --- | --- | --- | --- |

@@ -1,7 +1,7 @@
 FIRMWARE_VERSION := 1.00
 BUILD_DIR := build
 UF2_NAME := retrolink-$(FIRMWARE_VERSION).uf2
-UF2_OUTPUT := ../firmware/$(UF2_NAME)
+UF2_OUTPUT := ../../firmware/usb/$(UF2_NAME)
 
 CMAKE ?= C:/Users/Cristiano/.pico-sdk/cmake/v3.29.9/bin/cmake
 CMAKE_BUILD_TYPE ?= Release
@@ -9,7 +9,7 @@ PICO_SDK_PATH ?= C:/Users/Cristiano/.pico-sdk/sdk/2.2.0
 PICO_TOOLCHAIN_PATH ?= C:/Users/Cristiano/.pico-sdk/toolchain/14_2_Rel1
 PICOTOOL_DIR ?= C:/Users/Cristiano/.pico-sdk/picotool/2.1.1/picotool
 PIOASM_DIR ?= C:/Users/Cristiano/.pico-sdk/tools/2.2.0/pioasm
-PICO_PIO_USB_PATH ?= $(abspath ../third_party/Pico-PIO-USB)
+PICO_PIO_USB_PATH ?= $(abspath ../../third_party/Pico-PIO-USB)
 
 ifeq ($(OS),Windows_NT)
 	CMAKE_GENERATOR ?= Ninja
