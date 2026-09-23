@@ -8,7 +8,7 @@ Prerequisites:
 
 - Raspberry Pi Pico SDK available through `PICO_SDK_PATH`.
 - A Pico SDK version that provides TinyUSB host support for RP2040 and, for hardware revision `1.00`, PIO USB host support on GPIO 2 and GPIO 3.
-- Pico-PIO-USB providing `pio_usb.h` and the `pico_pio_usb` CMake target; the Makefile defaults to the repo submodule at `../../third_party/Pico-PIO-USB`.
+- Pico-PIO-USB providing `pio_usb.h` and the `pico_pio_usb` CMake target; the Makefile defaults to the repo submodule at `../third_party/Pico-PIO-USB`.
 - CMake and an ARM GCC toolchain supported by the Pico SDK.
 
 Build from this directory:
@@ -17,7 +17,7 @@ Build from this directory:
 make
 ```
 
-On this development machine, the Makefile defaults to the Pico SDK-managed CMake, Ninja, Python, SDK, ARM GCC toolchain, picotool, and pioasm paths under `C:/Users/Cristiano/.pico-sdk`. Pico-PIO-USB is repo-managed under `../../third_party/Pico-PIO-USB`. Override `CMAKE`, `CMAKE_MAKE_PROGRAM`, `PYTHON3_EXECUTABLE`, `PICO_SDK_PATH`, `PICO_TOOLCHAIN_PATH`, `PICOTOOL_DIR`, `PIOASM_DIR`, or `PICO_PIO_USB_PATH` on the `make` command line if another installation should be used.
+On Windows, the Makefile discovers the Pico SDK-managed tools and SDK under `%USERPROFILE%\.pico-sdk` (or the `PICO_SDK_ROOT` override), without depending on a particular account name or installed version. If managed Python is not present, CMake searches for Python on `PATH`. Pico-PIO-USB is repo-managed under `../third_party/Pico-PIO-USB`. Override `PICO_SDK_ROOT`, `CMAKE`, `CMAKE_MAKE_PROGRAM`, `PYTHON3_EXECUTABLE`, `PICO_SDK_PATH`, `PICO_TOOLCHAIN_PATH`, `PICOTOOL_DIR`, `PIOASM_DIR`, or `PICO_PIO_USB_PATH` on the `make` command line if your installation differs.
 
 After cloning the repository, initialize dependencies with:
 

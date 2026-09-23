@@ -38,7 +38,7 @@ The [USB specification](docs/specification.md) is version `1.00` and describes U
 | [software/md](software/md), [firmware/md](firmware/md), [hardware/md](hardware/md) | Placeholders for the planned Mega Drive-to-MSX variant; no build or hardware release yet. |
 | [images](images) | PCB preview renders used in this README. |
 | [docs](docs) | Technical specification and version log. |
-| [third_party/Pico-PIO-USB](third_party/Pico-PIO-USB) | Git submodule for GPIO-based USB host support on RP2040. |
+| [software/third_party/Pico-PIO-USB](software/third_party/Pico-PIO-USB) | Git submodule for GPIO-based USB host support on RP2040. |
 
 ## Firmware Build
 
@@ -61,7 +61,7 @@ The build generates a versioned UF2 file:
 firmware/usb/retrolink-1.00.uf2
 ```
 
-The Makefile defaults to the local Pico SDK-managed toolchain paths used on the development machine. Override `PICO_SDK_PATH`, `PICO_TOOLCHAIN_PATH`, `CMAKE`, `CMAKE_MAKE_PROGRAM`, `PYTHON3_EXECUTABLE`, `PICOTOOL_DIR`, `PIOASM_DIR`, or `PICO_PIO_USB_PATH` if your toolchain is installed elsewhere.
+On Windows, the Makefile discovers Pico SDK-managed tools under `%USERPROFILE%\.pico-sdk`. Override `PICO_SDK_ROOT`, `PICO_SDK_PATH`, `PICO_TOOLCHAIN_PATH`, `CMAKE`, `CMAKE_MAKE_PROGRAM`, `PYTHON3_EXECUTABLE`, `PICOTOOL_DIR`, `PIOASM_DIR`, or `PICO_PIO_USB_PATH` if your toolchain is installed elsewhere.
 
 ## RetroLink USB Firmware Behavior
 
