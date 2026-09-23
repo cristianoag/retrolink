@@ -140,3 +140,13 @@ Quantities are per USB PCB, taken from the revision `1.10` [interactive BOM](har
 | D1 | Schottky diode (`1N5819` BOM value) | 1 | `D_SOD-123`; the selected part must fit SOD-123. A common axial DO-41 1N5819 will not fit; confirm the exact SMD part, ratings, and polarity before ordering. | [Search 1N5819 SOD-123](https://www.aliexpress.com/w/wholesale-1n5819-sod-123.html) |
 
 This table matches the revision `1.10` BOM exports; it does not establish electrical validation or a complete implementation of the specification's protection requirements. Use the iBOM for placement, and regenerate assembly outputs after hardware changes.
+
+## License
+
+This project is licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+- You may remix and adapt the material with proper attribution.
+- Derivative works must be shared under the same license.
+- Commercial use is not permitted without explicit authorization.
+
+See [LICENSE.txt](LICENSE.txt) for the full license text. Third-party components retain their respective licenses.
