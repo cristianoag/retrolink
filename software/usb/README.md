@@ -7,7 +7,7 @@ USB firmware source code lives under this directory. Generated UF2 files are cop
 Prerequisites:
 
 - Raspberry Pi Pico SDK available through `PICO_SDK_PATH`.
-- A Pico SDK version that provides TinyUSB host support for RP2040 and, for hardware revision `1.00`, PIO USB host support on GPIO 2 and GPIO 3.
+- A Pico SDK version that provides TinyUSB host support for RP2040 and PIO USB host support on GPIO 27 and GPIO 28.
 - Pico-PIO-USB providing `pio_usb.h` and the `pico_pio_usb` CMake target; the Makefile defaults to the repo submodule at `../third_party/Pico-PIO-USB`.
 - CMake and an ARM GCC toolchain supported by the Pico SDK.
 
@@ -44,16 +44,23 @@ The Makefile uses the same CMake target and keeps the firmware version in the UF
 
 Firmware version `1.00` initializes USB CDC debug on the RP2040 Zero USB-C port and TinyUSB host mode on the USB-A port through Pico-PIO-USB. Standard HID joystick/gamepad report descriptors determine the control locations; the first report is decoded immediately, not used as a neutral baseline.
 
+The current build uses GPIO27 for USB-A D+ and GPIO28 for D-. This consecutive pair satisfies Pico-PIO-USB's DPDM pinout and does not overlap the MSX or status LED assignments. USB-C uses the native USB controller and is unaffected. GPIO27/28 must not also be used as ADC inputs or for other peripherals.
+
+This build requires the updated USB-A and MSX wiring; it is not compatible with the original hardware revision `1.00` pin assignments documented in the [specification](../../docs/specification.md). Firmware and hardware version identifiers remain unchanged. Verify the actual board wiring, USB enumeration, and each MSX control on hardware before use.
+
 | MSX control | GPIO | DB9 pin | USB HID control |
 | --- | --- | --- | --- |
-| Up | 6 | 1 | Low Y, hat up, or D-pad up |
-| Down | 7 | 2 | High Y, hat down, or D-pad down |
-| Left | 8 | 3 | Low X, hat left, or D-pad left |
-| Right | 9 | 4 | High X, hat right, or D-pad right |
-| Button A | 10 | 6 | Button usage 1 |
-| Button B | 11 | 7 | Button usage 2 |
+| Up | 0 | 1 | Low Y, hat up, or D-pad up |
+| Down | 2 | 2 | High Y, hat down, or D-pad down |
+| Left | 4 | 3 | Low X, hat left, or D-pad left |
+| Right | 6 | 4 | High X, hat right, or D-pad right |
+| Button A | 1 | 6 | Button usage 1 |
+| Button B | 3 | 7 | Button usage 2 |
+| OUT / strobe (input from MSX) | 5 | 8 | Not used in joystick mode |
 
-All outputs assert low and release to input/high impedance, with internal pull-ups disabled. The documented BSS138 level shifters and external pull-ups remain required; never connect 5 V MSX signals directly to RP2040 GPIOs. GPIO12 / DB9 pin 8 is not driven by this joystick implementation.
+All six control outputs assert low and release to input/high impedance, with internal pull-ups disabled. The documented BSS138 level shifters and external pull-ups remain required; never connect 5 V MSX signals directly to RP2040 GPIOs. GPIO5 / DB9 pin 8 is reserved as an input from the MSX and is neither initialized, read, nor driven by this joystick implementation.
+
+The unused USB VBUS enable/fault reservations on GPIO4/5 have been removed; the updated board must not connect VBUS control/fault circuitry to these pins. UART stdio remains disabled, leaving GPIO0/1 available for MSX signals. Do not enable UART or other peripheral functions on GPIO0-6 while using this mapping.
 
 Absolute X/Y axes use the descriptor's logical range: below 25% asserts left/up, above 75% asserts right/down, and the middle 50% is neutral. Four-way and eight-way hats are supported, including diagonal combinations for eight-way hats; values outside the logical range are neutral. Axis and D-pad directions are combined. Opposing directions cancel each other. Button usage numbers may not match the controller's printed labels.
 
@@ -83,4 +90,4 @@ gcc -std=c11 -Wall -Wextra -Werror -I software/usb/tests/stubs -I software/usb/i
 ./software/usb/build/msx_port_test.exe
 ```
 
-Tests cover descriptor bounds, report IDs, axes, hats, buttons, GPIO assignments, high-impedance release, held-control continuity, and opposing directions. GPIO tests use a stub; they do not establish electrical or USB runtime correctness. On hardware, verify each direction and button, simultaneous controls, neutral release, and unplugging while controls are held.
+Tests cover descriptor bounds, report IDs, axes, hats, buttons, the exact GPIO assignments, high-impedance release, held-control continuity, and opposing directions. GPIO tests also verify that OUT/strobe and unrelated pins remain untouched. GPIO tests use a stub; they do not establish electrical or USB runtime correctness. On hardware, verify each direction and button, simultaneous controls, neutral release, and unplugging while controls are held.

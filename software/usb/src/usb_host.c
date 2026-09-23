@@ -13,6 +13,9 @@
 
 #define RETROLINK_MAX_HID_SLOTS 8u
 
+_Static_assert(RETROLINK_USB_HOST_DM_GPIO == RETROLINK_USB_HOST_DP_GPIO + 1u,
+               "PIO USB DPDM pinout requires D- on D+ GPIO + 1");
+
 typedef struct {
     bool in_use;
     uint8_t dev_addr;
@@ -88,6 +91,7 @@ void usb_host_init(void)
 {
     pio_usb_configuration_t pio_cfg = PIO_USB_DEFAULT_CONFIG;
     pio_cfg.pin_dp = RETROLINK_USB_HOST_DP_GPIO;
+    pio_cfg.pinout = PIO_USB_PINOUT_DPDM;
 
     tuh_configure(BOARD_TUH_RHPORT, TUH_CFGID_RPI_PIO_USB_CONFIGURATION, &pio_cfg);
     tuh_init(BOARD_TUH_RHPORT);

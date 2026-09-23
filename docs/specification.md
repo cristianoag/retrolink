@@ -33,7 +33,7 @@ Known board features:
 
 ## Current PCB And Assembly Files
 
-Hardware revision `1.00` now includes a [KiCad schematic](../hardware/usb/1.00/retrolink.kicad_sch), [PCB layout](../hardware/usb/1.00/retrolink.kicad_pcb), [interactive BOM](../hardware/usb/1.00/bom/ibom.html), and [production outputs](../hardware/usb/1.00/production). The [README PCB previews](../README.md#pcb-preview) show top and bottom 3D renders, not photographs of tested hardware. Open the iBOM HTML locally in a browser; GitHub's file view does not run the interactive page.
+Hardware revision `1.00` now includes a [KiCad schematic](../hardware/usb/1.00/retrolink.kicad_sch), [PCB layout](../hardware/usb/1.00/retrolink.kicad_pcb), [interactive BOM](../hardware/usb/1.00/bom/ibom.html), and [production outputs](../hardware/usb/1.00/production). The [README PCB previews](../README.md#pcb-preview) now show the latest hardware revision `1.10` in top and bottom 3D renders, not photographs of tested hardware. Open the iBOM HTML locally in a browser; GitHub's file view does not run the interactive page.
 
 The [exported BOM](../hardware/usb/1.00/production/bom.csv) currently lists one each of RZ1 (RP2040 Zero), J1 (DE9 socket), J2 (USB-A receptacle), and D1 (value `1N5819`, footprint `D_SOD-123`). The [README component table](../README.md#pcb-components) records quantities, footprints, and replaceable AliExpress search links. These are sourcing placeholders, not approved parts or verified stock.
 
@@ -198,11 +198,11 @@ Recommended firmware modules:
 | `config` | Build-time or runtime configuration for board revision and device behavior. |
 | `diagnostics` | Optional debug state, fault reporting, and validation hooks. |
 
-Firmware version `1.00` provides USB-C CDC debug and descriptor-based USB HID joystick/gamepad translation. Absolute X/Y axes, four/eight-way hats, and discrete D-pad usages drive up/down/left/right on GPIO6/7/8/9 (DB9 pins 1/2/3/4); button usages 1/2 drive A/B on GPIO10/11 (DB9 pins 6/7). Outputs assert low and release to high impedance through the documented level shifters. The first report is decoded directly, without neutral calibration. Axis thresholds are below 25% and above 75% of the descriptor's logical range, with the middle 50% neutral. Opposing directions cancel. GPIO12 / DB9 pin 8 is not driven in this joystick mode.
+Firmware version `1.00` provides USB-C CDC debug and descriptor-based USB HID joystick/gamepad translation. The current source drives up/down/left/right on GPIO0/2/4/6 (DB9 pins 1/2/3/4); button usages 1/2 drive A/B on GPIO1/3 (DB9 pins 6/7). This requires updated wiring rather than the original hardware revision `1.00` assignments above. Absolute X/Y axes, four/eight-way hats, and discrete D-pad usages are supported. Outputs assert low and release to high impedance through the documented level shifters. The first report is decoded directly, without neutral calibration. Axis thresholds are below 25% and above 75% of the descriptor's logical range, with the middle 50% neutral. Opposing directions cancel. GPIO5 / DB9 pin 8 is reserved for the MSX OUT/strobe input and is neither initialized, read, nor driven in this joystick mode. The unused GPIO4/5 USB VBUS control/fault reservations have been removed; those circuits must not share the MSX pins.
 
 States are combined across report IDs and interfaces. Detach, invalid reports, or failed receive requests release the affected interface's state; a receive-request failure requires reconnection. CDC reports mapping support and state changes, and the GPIO16 LED pulses on newly asserted controls. Vendor-specific protocols and mouse emulation are not implemented. See [software behavior and tests](../software/usb/README.md#current-behavior) for decoder limits, public interfaces, and host-test commands. Compilation and simulated tests do not replace validation with the actual joystick and MSX hardware.
 
-Recommended firmware constants for firmware version `1.00` and hardware revision `1.00`:
+Original firmware constants for hardware revision `1.00` (historical wiring, not the current source mapping; see the [current GPIO table](../software/usb/README.md#current-behavior)):
 
 | Constant | Value |
 | --- | --- |
@@ -241,11 +241,13 @@ The build is configured to copy the UF2 artifact to:
 firmware/usb/retrolink-1.00.uf2
 ```
 
-The current firmware uses TinyUSB device CDC on native USB root port 0, TinyUSB host on Pico-PIO-USB root port 1, and a 120 MHz system clock. The USB-A data pair is wired to GPIO2 (D+) and GPIO3 (D-).
+The current firmware uses TinyUSB device CDC on native USB root port 0, TinyUSB host on Pico-PIO-USB root port 1, and a 120 MHz system clock. The current source configures GPIO27 (D+) and GPIO28 (D-) and requires updated USB-A and MSX wiring. The hardware revision `1.00` tables above retain the original wiring; the current build is not compatible with that wiring. See the [software compatibility notes](../software/usb/README.md#current-behavior).
 
 ## Reserved GPIO Pins
 
 Leave GPIO 0, 1, 14, 15, 26, 27, 28, and 29 unassigned in hardware revision `1.00` unless a later schematic needs them.
+
+This reservation describes the original hardware revision only. The current source uses GPIO0/1 for MSX up/button A and GPIO27/28 for USB-A D+/D-; UART stdio is disabled and must remain off those MSX pins.
 
 Potential future uses:
 

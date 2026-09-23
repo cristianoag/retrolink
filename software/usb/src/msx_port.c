@@ -34,7 +34,10 @@ void msx_port_init(void)
         release_open_drain_gpio(output_gpios[index]);
     }
     current_state = 0;
-    debug_cdc_log("MSX joystick ready: GPIO6-11 / DB9 pins 1,2,3,4,6,7\r\n");
+    debug_cdc_log("MSX joystick ready: GPIO%u,%u,%u,%u,%u,%u / DB9 pins 1,2,3,4,6,7\r\n",
+                  RETROLINK_MSX_UP_GPIO, RETROLINK_MSX_DOWN_GPIO,
+                  RETROLINK_MSX_LEFT_GPIO, RETROLINK_MSX_RIGHT_GPIO,
+                  RETROLINK_MSX_TRIGGER_A_GPIO, RETROLINK_MSX_TRIGGER_B_GPIO);
 }
 
 void msx_port_set_state(joystick_state_t state)

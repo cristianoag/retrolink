@@ -12,8 +12,14 @@
 - Added Pico-PIO-USB as a repo-managed submodule and linked it into the firmware build for GPIO-based USB host support.
 - Enabled USB-C CDC debug logging while keeping the USB-A connector as the Pico-PIO-USB HID host port.
 - Replaced activity-based mapping with descriptor-decoded directions and buttons A/B on GPIO6-11, with high-impedance release and host regression tests.
+- Reassigned USB-A host D+/D- from GPIO2/GPIO3 to GPIO27/GPIO28; the current build requires matching updated wiring instead of the original hardware revision `1.00` data pair.
+- Remapped MSX up/A/down/B/left/OUT/right to GPIO0/1/2/3/4/5/6 and removed unused GPIO4/5 VBUS reservations; updated wiring is required and OUT remains unused in joystick mode.
 
 ## Hardware
+
+### Hardware revision 1.10 - 2026-09-23
+
+- Identified `1.10` as the latest USB hardware revision and replaced the README previews with updated angled, top, and bottom 3D renders.
 
 ### Hardware revision 1.00 - 2026-09-20
 

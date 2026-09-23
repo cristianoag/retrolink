@@ -1857,44 +1857,48 @@
 		(uuid "da89e333-e75b-4a60-8123-e9926ffaaedc")
 	)
 	(no_connect
-		(at 153.67 83.82)
-		(uuid "20caad7b-10d0-4778-b9c8-8020c6158151")
+		(at 153.67 101.6)
+		(uuid "08287999-9365-420e-9502-66d48b277da0")
 	)
 	(no_connect
 		(at 153.67 91.44)
 		(uuid "4b87fbf9-2624-47a9-9f90-f42a28925314")
 	)
 	(no_connect
-		(at 124.46 91.44)
-		(uuid "5203ba27-95a2-45b4-bb77-1ccbe8e6d737")
+		(at 124.46 101.6)
+		(uuid "5ecb9729-13ac-40d1-ab9f-c95f238b6242")
 	)
 	(no_connect
 		(at 153.67 86.36)
 		(uuid "71ca5de4-1d7e-4db1-80d4-9a3709ffb14f")
 	)
 	(no_connect
-		(at 153.67 81.28)
-		(uuid "725a410a-59b8-4b9f-875d-32da1841b608")
-	)
-	(no_connect
 		(at 153.67 78.74)
 		(uuid "74123506-7c4e-4497-9f9d-89ba8bdd1666")
 	)
 	(no_connect
-		(at 124.46 88.9)
-		(uuid "74a19ff7-971a-457f-96b4-7c62f2ab65ed")
+		(at 153.67 99.06)
+		(uuid "7534ceb2-375a-45d8-ba0d-8cfb2fb191ea")
 	)
 	(no_connect
-		(at 124.46 81.28)
-		(uuid "9341a5c5-00ab-4777-8517-226072654f0a")
+		(at 124.46 99.06)
+		(uuid "7ce8ad5f-e2d4-4572-9ae5-181aa839edcc")
+	)
+	(no_connect
+		(at 124.46 96.52)
+		(uuid "a2b5d8f4-43fc-4897-b8b6-7140cb224dc9")
+	)
+	(no_connect
+		(at 153.67 96.52)
+		(uuid "c5306c02-7406-4ca6-8c21-a5d777dce55b")
 	)
 	(no_connect
 		(at 153.67 88.9)
 		(uuid "e3bddd96-6ed6-4615-9665-923ccc3e01cb")
 	)
 	(no_connect
-		(at 124.46 78.74)
-		(uuid "ff1ecaab-bcb9-4b07-b8a5-56d7b38e485b")
+		(at 153.67 93.98)
+		(uuid "ed473d4a-9e16-4135-9907-a70c22b81cf3")
 	)
 	(wire
 		(pts
@@ -2046,35 +2050,45 @@
 		)
 		(uuid "fbd60fd9-008a-44f8-a31a-4b865b964d23")
 	)
-	(label "MSX_LEFT"
-		(at 124.46 99.06 180)
+	(label "MSX_RIGHT"
+		(at 124.46 93.98 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "15f4c162-51af-4c23-ac09-50afd1d9c6ec")
-	)
-	(label "USBD+"
-		(at 124.46 83.82 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "37f24a27-9b2d-4419-b7fb-60d2940eec81")
+		(uuid "1a841c77-0561-4dfb-9695-7032f85548f7")
 	)
 	(label "MSX_A"
-		(at 153.67 101.6 0)
+		(at 124.46 81.28 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "27abe046-64ea-4532-b719-c83198b954b8")
+	)
+	(label "USBD-"
+		(at 153.67 81.28 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "3fb1c55e-e8ed-491f-a933-a2bcac82a598")
+		(uuid "3975e2ee-5fd6-42d9-b776-7f10b7076b00")
+	)
+	(label "MSX_LEFT"
+		(at 124.46 88.9 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4229710c-19ed-4254-9950-dfb832de61d3")
 	)
 	(label "MSX_A"
 		(at 212.09 86.36 180)
@@ -2086,15 +2100,25 @@
 		)
 		(uuid "4a5f3d54-b05e-4d00-8e51-a117d0ed1061")
 	)
-	(label "MSX_RIGHT"
-		(at 124.46 101.6 180)
+	(label "MSX_DOWN"
+		(at 124.46 83.82 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "5332c037-d4f2-4d6b-91c4-2a706b4b341b")
+		(uuid "4a70d1e9-dbd7-4dc7-8d5f-20967f2113f2")
+	)
+	(label "MSX_OUT"
+		(at 124.46 91.44 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "5757784c-ec83-4fdc-a470-0298f5cc3370")
 	)
 	(label "USBD+"
 		(at 207.01 111.76 180)
@@ -2116,16 +2140,6 @@
 		)
 		(uuid "6967b5e6-7b7c-4ebc-b152-5425d24ff23e")
 	)
-	(label "MSX_DOWN"
-		(at 124.46 96.52 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "7558cd99-5127-4a90-9d7a-be8ddf148846")
-	)
 	(label "MSX_LEFT"
 		(at 212.09 78.74 180)
 		(effects
@@ -2135,36 +2149,6 @@
 			(justify right bottom)
 		)
 		(uuid "889a5764-3999-4dd4-97c7-dd6320568ee8")
-	)
-	(label "MSX_OUT"
-		(at 153.67 96.52 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "8c0f3ab6-b8ed-4082-87ad-3b2096f42e6c")
-	)
-	(label "MSX_B"
-		(at 153.67 99.06 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "aa1fd772-c4fb-4a7e-9234-c98b10fb0586")
-	)
-	(label "MSX_UP"
-		(at 124.46 93.98 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "b1e48f43-4185-40a1-9862-c4fb6325bc0c")
 	)
 	(label "USBD-"
 		(at 207.01 109.22 180)
@@ -2176,6 +2160,16 @@
 		)
 		(uuid "b4d249b3-2321-44f5-b074-3b30c5805759")
 	)
+	(label "MSX_B"
+		(at 124.46 86.36 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b7f22127-bf1e-4b3c-9834-1c983072ce2a")
+	)
 	(label "MSX_UP"
 		(at 212.09 88.9 180)
 		(effects
@@ -2185,6 +2179,16 @@
 			(justify right bottom)
 		)
 		(uuid "c3f29008-f582-4335-a12a-0bdc81dff1a4")
+	)
+	(label "MSX_UP"
+		(at 124.46 78.74 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c6174c44-c58a-4653-81f1-4ce4a9807702")
 	)
 	(label "MSX_B"
 		(at 212.09 81.28 180)
@@ -2206,15 +2210,15 @@
 		)
 		(uuid "d93c4eef-5618-43a7-a137-8d36f99b674c")
 	)
-	(label "USBD-"
-		(at 124.46 86.36 180)
+	(label "USBD+"
+		(at 153.67 83.82 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "dcef1d44-c933-4182-b038-93f706287313")
+		(uuid "eaaf7bba-e8f9-4921-b24c-d8c0544a9dc1")
 	)
 	(label "MSX_OUT"
 		(at 212.09 76.2 180)
