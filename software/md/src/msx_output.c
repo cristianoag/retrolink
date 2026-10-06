@@ -64,3 +64,8 @@ void msx_output_set_state(joystick_state_t state)
     apply_outputs();
     restore_interrupts(irq_state);
 }
+
+bool msx_output_common_high(void)
+{
+    return gpio_get(RETROLINK_MSX_OUT_STROBE_GPIO);
+}

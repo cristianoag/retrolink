@@ -11,6 +11,8 @@ static const uint data_gpios[] = {
     RETROLINK_MD_BA_GPIO, RETROLINK_MD_CSTART_GPIO,
 };
 
+static md_pad_samples_t last_samples;
+
 static uint8_t read_data(void)
 {
     uint32_t pins = gpio_get_all();
@@ -59,6 +61,7 @@ md_poll_result_t md_port_poll(md_pad_state_t *state)
     select_level(false);
     samples.fourth_low = read_data();
     select_level(true);
+    last_samples = samples;
 
     /* Keep MSX IRQs enabled; reject a frame interrupted beyond the timing budget. */
     if ((uint32_t)(time_us_32() - start) > RETROLINK_MD_MAX_FRAME_US) {
@@ -67,4 +70,9 @@ md_poll_result_t md_port_poll(md_pad_state_t *state)
     }
     *state = md_pad_decode(samples);
     return state->type == MD_PAD_NONE ? MD_POLL_NO_PAD : MD_POLL_OK;
+}
+
+md_pad_samples_t md_port_last_samples(void)
+{
+    return last_samples;
 }

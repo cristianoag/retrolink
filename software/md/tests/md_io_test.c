@@ -228,6 +228,11 @@ int main(void)
     md_pad_state_t pad;
     assert(poll(&pad, three) == MD_POLL_OK);
     assert(pad.type == MD_PAD_3_BUTTON && pad.buttons == (MD_UP | MD_B | MD_C));
+    md_pad_samples_t last = md_port_last_samples();
+    assert(last.idle_high == three.idle_high && last.first_low == three.first_low &&
+           last.third_low == three.third_low && last.third_high == three.third_high &&
+           last.fourth_low == three.fourth_low);
+    assert(!msx_output_common_high());
     msx_output_set_state(md_pad_to_msx(pad));
     expect_outputs(JOYSTICK_UP | JOYSTICK_BUTTON_A | JOYSTICK_BUTTON_B);
     md_pad_samples_t six = {0x3f, 0x33, 0x30, 0x30, 0x3f};

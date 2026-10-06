@@ -11,5 +11,7 @@ typedef enum {
 
 void md_port_init(void);
 md_poll_result_t md_port_poll(md_pad_state_t *state);
+/* Raw D0..D5 samples from the most recent poll, for diagnostics. */
+md_pad_samples_t md_port_last_samples(void);
 
 #endif

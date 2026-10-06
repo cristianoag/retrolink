@@ -52,9 +52,9 @@ MD pin 8 and MSX pin 9 are ground. **Do not ground MSX pin 8.** Validate connect
 - MSX output latches remain zero; only GPIO direction changes. GPIO5 rise/fall interrupts release or restore the current held controls according to MSX common. This is software-interrupt-driven, not zero-latency hardware gating or MSX mouse emulation; validate common-to-output timing on the intended MSX.
 - The LED pulses on newly asserted mapped controls.
 
-Native USB-C CDC provides firmware identity, controller type, raw button bits, mapped MSX state, connection/invalid-frame changes, and timing errors. It does not wait for a terminal at boot. Serial writes use zero host-buffer wait timeout; debug text can be dropped when the host is not reading, rather than waiting for buffer space. USB CDC reset commands are disabled; use the physical BOOT/RESET buttons for reflashing.
+Native USB-C CDC provides firmware identity, controller type, raw button bits, raw D0..D5 samples for each TH phase, the MSX pin 8 common level, mapped MSX state, connection/invalid-frame changes, and timing errors. Status prints on any decoded or common-level change, on raw-sample changes (at most every 100 ms), and once per second. It does not wait for a terminal at boot. Serial writes use zero host-buffer wait timeout; debug text can be dropped when the host is not reading, rather than waiting for buffer space. USB CDC reset commands are disabled; use the physical BOOT/RESET buttons for reflashing.
 
-Diagnostic `buttons` bits 0..11 are Up, Down, Left, Right, B, C, A, Start, Z, Y, X, Mode. `MSX` bits 0..5 are Up, Down, Left, Right, trigger A, trigger B (the requested controls before common-line gating).
+Diagnostic `buttons` bits 0..11 are Up, Down, Left, Right, B, C, A, Start, Z, Y, X, Mode. `raw` lists the idle-high, first-low, third-low, third-high, and fourth-low samples, with bits 0..5 = D0..D5 and 1 = high; with no pad, every sample reads `3f`, and an idle 3-button pad reads `3f/33/33/3f/33`. `common=1` means MSX pin 8 is high and all outputs are released. `MSX` bits 0..5 are Up, Down, Left, Right, trigger A, trigger B (the requested controls before common-line gating).
 
 ## Build
 

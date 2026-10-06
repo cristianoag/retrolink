@@ -27,6 +27,7 @@
 #### Firmware v1.10 - 2026-10-06
 
 - Bumped MD firmware and hardware identifiers to `1.10` and exported `retrolink-md-1.10.uf2`; GPIO assignments match MD hardware revision `1.10` unchanged, and the Makefile now passes its version to CMake.
+- Added raw TH-phase D0..D5 samples and the MSX pin 8 common level to USB-C CDC diagnostics, with 1 s status heartbeats.
 
 #### Firmware v1.00 - 2026-09-23
 
