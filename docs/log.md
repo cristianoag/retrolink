@@ -31,6 +31,10 @@
 
 #### Hardware revision 1.10 - 2026-09-23
 
+- Shared the USB case geometry and export helpers with the MD enclosure while preserving USB default dimensions and geometry.
+- Added dedicated case end stops targeting 0.20 mm total nominal PCB lengthwise play and closed the USB-C side opening; programming now requires opening the case.
+- Revised the compact case with four short radiused-root clips, alignment keys, over-travel stops and a low-preload padded DB9 metal cradle, keeping the flange exposed; physical strength and retention remain unvalidated.
+- Added a two-piece PLA snap-fit enclosure prototype with USB-A/DB9/USB-C access, parametric CAD, printable STLs, and geometry checks; physical fit and clip strength remain unvalidated.
 - Identified `1.10` as the latest USB hardware revision and replaced the README previews with updated angled, top, and bottom 3D renders.
 
 #### Hardware revision 1.00 - 2026-09-20
@@ -42,6 +46,10 @@
 - Documented the current PCB layout, preview renders, iBOM, and four-part sourcing table, including unresolved protection and package requirements.
 
 ### MD
+
+#### Hardware revision 1.10 - 2026-10-06
+
+- Added a dual-DB9 four-clip PLA enclosure matching the USB case's 50.19 x 33.50 x 19.70 mm size, with tight PCB end stops, enclosed USB-C and padded MSX-side support; physical validation remains pending.
 
 #### Hardware revision 1.00 - 2026-09-23
 

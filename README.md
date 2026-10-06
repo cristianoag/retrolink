@@ -105,6 +105,8 @@ Firmware `1.00` reads standard 3- and 6-button pads, maps directions and B/C to 
 
 The MD [schematic](hardware/md/1.00/retrolink.kicad_sch), [PCB](hardware/md/1.00/retrolink.kicad_pcb), and [BOM](hardware/md/1.00/production/bom.csv) are available. MD pin 8 is ground, while MSX ground is pin 9 and MSX pin 8 is a driven signal. 
 
+MD [revision `1.10`](hardware/md/1.10) also has a [dual-DB9 four-clip PLA case](hardware/md/1.10/case/README.md), matching the USB case's 50.19 x 33.50 x 19.70 mm plastic envelope. Physical case fit and retention testing remain pending.
+
 The MD build disables the RP2040 B0/B1 USB enumeration workaround because it takes over GPIO15 (MD SELECT); B2 silicon is preferred for USB-C diagnostics.
 
 ## RetroLink USB Firmware Behavior
@@ -123,6 +125,7 @@ The latest hardware revision, `1.10`, includes the KiCad project, schematic, PCB
 - [The Retro Hacker RetroLink USB BOM (interactive, revision `1.10`)](hardware/usb/1.10/bom/ibom.html)
 - [Exported component BOM](hardware/usb/1.10/production/bom.csv)
 - [Production outputs](hardware/usb/1.10/production)
+- [Compact four-clip PLA case: STLs, STEP and print instructions](hardware/usb/1.10/case/README.md) (reinforced short roots and padded DB9 rear support; physical strength and retention testing pending).
 
 GitHub displays the iBOM HTML as a repository file, not an interactive page. Download the raw HTML or open the local file in a browser to use its component highlighting and assembly checklist.
 
