@@ -1,6 +1,6 @@
 # RetroLink MD Software
 
-RP2040 Zero firmware `1.00` for RetroLink MD hardware revision `1.00`. It polls standard Mega Drive/Genesis 3-button and 6-button controllers and translates directions plus B/C into MSX joystick signals. This is a separate build from [RetroLink USB](../usb/); do not flash the USB UF2 onto the MD board.
+RP2040 Zero firmware `1.10` for RetroLink MD hardware revision `1.10`; its GPIO assignments also match revision `1.00`. It polls standard Mega Drive/Genesis 3-button and 6-button controllers and translates directions plus B/C into MSX joystick signals. This is a separate build from [RetroLink USB](../usb/); do not flash the USB UF2 onto the MD board.
 
 ## Wiring
 
@@ -68,7 +68,7 @@ make -C software\md
 
 The Makefile follows the USB project's Windows tool discovery under `%USERPROFILE%\.pico-sdk`. Override `PICO_SDK_ROOT`, `PICO_SDK_PATH`, `PICO_TOOLCHAIN_PATH`, `CMAKE`, `CMAKE_MAKE_PROGRAM`, `PYTHON3_EXECUTABLE`, `PICOTOOL_DIR`, or `PIOASM_DIR` when necessary.
 
-Output: [firmware/md/retrolink-md-1.00.uf2](../../firmware/md/retrolink-md-1.00.uf2). The firmware version is defined in `CMakeLists.txt`; hardware assignments and polling timings live in `include/retrolink/board_config.h`.
+Output: [firmware/md/retrolink-md-1.10.uf2](../../firmware/md/retrolink-md-1.10.uf2). The Makefile's `FIRMWARE_VERSION` is passed to CMake (default in `CMakeLists.txt`) so the UF2 name and reported version match; hardware assignments and polling timings live in `include/retrolink/board_config.h`.
 
 The target reuses the unchanged USB project's `joystick.h`, `status_led.h`, `status_led.c`, and `ws2812.pio`. Its own include directory comes first, so the shared LED driver uses the MD board configuration. MD protocol and MSX common-line handling are separate modules; no USB host code is linked.
 

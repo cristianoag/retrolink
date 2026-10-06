@@ -1,8 +1,8 @@
 # RetroLink MD Firmware
 
-Firmware `1.00` for RetroLink MD hardware revision `1.00` is built from [software/md](../../software/md/).
+Firmware `1.10` for RetroLink MD hardware revision `1.10` is built from [software/md](../../software/md/).
 
-- Artifact: [retrolink-md-1.00.uf2](retrolink-md-1.00.uf2).
+- Artifact: [retrolink-md-1.10.uf2](retrolink-md-1.10.uf2); the earlier [retrolink-md-1.00.uf2](retrolink-md-1.00.uf2) remains available.
 - Input: standard Mega Drive 3-button and 6-button controllers.
 - Mapping: directions, MD B to MSX trigger A, MD C to MSX trigger B; other buttons are diagnostic-only.
 - USB-C provides programming and CDC diagnostics, not USB-A controller input.

@@ -35,18 +35,18 @@ cmake --build software/usb/build
 The expected firmware artifact is:
 
 ```text
-firmware/usb/retrolink-1.00.uf2
+firmware/usb/retrolink-1.10.uf2
 ```
 
-The Makefile uses the same CMake target and keeps the firmware version in the UF2 file name.
+The Makefile passes `FIRMWARE_VERSION` to CMake, so the UF2 file name and the firmware's reported version stay in sync.
 
 ## Current Behavior
 
-Firmware version `1.00` initializes USB CDC debug on the RP2040 Zero USB-C port and TinyUSB host mode on the USB-A port through Pico-PIO-USB. Standard HID joystick/gamepad report descriptors determine the control locations; the first report is decoded immediately, not used as a neutral baseline.
+Firmware version `1.10` initializes USB CDC debug on the RP2040 Zero USB-C port and TinyUSB host mode on the USB-A port through Pico-PIO-USB. Standard HID joystick/gamepad report descriptors determine the control locations; the first report is decoded immediately, not used as a neutral baseline.
 
 The current build uses GPIO27 for USB-A D+ and GPIO28 for D-. This consecutive pair satisfies Pico-PIO-USB's DPDM pinout and does not overlap the MSX or status LED assignments. USB-C uses the native USB controller and is unaffected. GPIO27/28 must not also be used as ADC inputs or for other peripherals.
 
-This build requires the updated USB-A and MSX wiring; it is not compatible with the original hardware revision `1.00` pin assignments documented in the [specification](../../docs/specification.md). Firmware and hardware version identifiers remain unchanged. Verify the actual board wiring, USB enumeration, and each MSX control on hardware before use.
+This build matches the GPIO assignments of USB hardware revision `1.10`; it is not compatible with the original hardware revision `1.00` pin assignments documented in the [specification](../../docs/specification.md). Verify the actual board wiring, USB enumeration, and each MSX control on hardware before use.
 
 | MSX control | GPIO | DB9 pin | USB HID control |
 | --- | --- | --- | --- |

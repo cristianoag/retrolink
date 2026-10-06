@@ -4,6 +4,11 @@
 
 ### USB
 
+#### Firmware v1.10 - 2026-10-06
+
+- Set the build firmware and hardware identifiers to `1.10`, matching USB hardware revision `1.10` GPIO assignments, and exported `retrolink-1.10.uf2`; the Makefile now passes its version to CMake.
+- Added a tested USB joystick list to `firmware/README.md`; Hyperkin Trooper 2, Dazz Dual Shock, a generic USB Super Nintendo clone, and Datafrog Wireless work with firmware `1.10` on hardware revision `1.10`, while an Xbox One controller does not.
+
 #### Firmware v1.00 - 2026-09-20
 
 - Defined initial firmware-facing module boundaries and GPIO constants for the future RP2040 Zero implementation.
@@ -19,6 +24,10 @@
 
 ### MD
 
+#### Firmware v1.10 - 2026-10-06
+
+- Bumped MD firmware and hardware identifiers to `1.10` and exported `retrolink-md-1.10.uf2`; GPIO assignments match MD hardware revision `1.10` unchanged, and the Makefile now passes its version to CMake.
+
 #### Firmware v1.00 - 2026-09-23
 
 - Added the separate MD firmware for 3-/6-button Mega Drive pads, using D0..D5 on GPIO28/26/14/12/27/13 and TH on GPIO15, with B/C mapped to MSX A/B.
@@ -31,10 +40,6 @@
 
 #### Hardware revision 1.10 - 2026-09-23
 
-- Shared the USB case geometry and export helpers with the MD enclosure while preserving USB default dimensions and geometry.
-- Added dedicated case end stops targeting 0.20 mm total nominal PCB lengthwise play and closed the USB-C side opening; programming now requires opening the case.
-- Revised the compact case with four short radiused-root clips, alignment keys, over-travel stops and a low-preload padded DB9 metal cradle, keeping the flange exposed; physical strength and retention remain unvalidated.
-- Added a two-piece PLA snap-fit enclosure prototype with USB-A/DB9/USB-C access, parametric CAD, printable STLs, and geometry checks; physical fit and clip strength remain unvalidated.
 - Identified `1.10` as the latest USB hardware revision and replaced the README previews with updated angled, top, and bottom 3D renders.
 
 #### Hardware revision 1.00 - 2026-09-20
@@ -46,10 +51,6 @@
 - Documented the current PCB layout, preview renders, iBOM, and four-part sourcing table, including unresolved protection and package requirements.
 
 ### MD
-
-#### Hardware revision 1.10 - 2026-10-06
-
-- Added a dual-DB9 four-clip PLA enclosure matching the USB case's 50.19 x 33.50 x 19.70 mm size, with tight PCB end stops, enclosed USB-C and padded MSX-side support; physical validation remains pending.
 
 #### Hardware revision 1.00 - 2026-09-23
 
