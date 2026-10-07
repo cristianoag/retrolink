@@ -30,3 +30,13 @@ Controllers tested on real hardware with each USB firmware version. Controllers 
 ### Firmware 1.00
 
 No controllers recorded.
+
+## Tested MegaDrive Joysticks
+
+Controllers tested on real hardware with each MD firmware version. Controllers not listed have not been tested.
+
+### Firmware 1.10
+
+| Controller | Hardware revision | Result | Notes |
+| --- | --- | --- | --- |
+| 8BitDo M30 with Mega Drive adapter | 1.10 | Works | |

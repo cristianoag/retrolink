@@ -17,7 +17,7 @@ The latest RetroLink USB hardware revision, `1.10`, uses an RP2040 Zero module o
 
 ![RetroLink MD revision 1.00 angled 3D render with RP2040 Zero and Mega Drive and MSX DE9 connectors](images/2026-09-23_15-54.png)
 
-RetroLink MD hardware revision `1.00` replaces USB-A controller input with a **male DE9 for the Mega Drive controller**, retaining a **female DE9 for the MSX**. Its separate firmware maps MD B/C to MSX triggers A/B and reads the MSX common signal. 
+RetroLink MD hardware revision `1.10` replaces USB-A controller input with a **male DE9 for the Mega Drive controller**, retaining a **female DE9 for the MSX**. Its separate firmware maps MD B/C to MSX triggers A/B and reads the MSX common signal. 
 
 ## PCB Preview
 
@@ -45,8 +45,8 @@ Back of the MD PCB (3D render):
 
 | Variant | Input | Hardware | Software and firmware |
 | --- | --- | --- | --- |
-| RetroLink USB | USB HID joystick/gamepad | Latest: [revision `1.10`](hardware/usb/1.10); earlier revisions under [hardware/usb](hardware/usb) | [USB source](software/usb) and [UF2 artifacts](firmware/usb); firmware `1.00` |
-| RetroLink MD | Mega Drive/Genesis 3-/6-button controller | [Revision `1.00`](hardware/md/1.00) | [MD source](software/md) and [UF2 artifacts](firmware/md); firmware `1.00`, hardware validation pending |
+| RetroLink USB | USB HID joystick/gamepad | Latest: [revision `1.10`](hardware/usb/1.10); earlier revisions under [hardware/usb](hardware/usb) | [USB source](software/usb) and [UF2 artifacts](firmware/usb); firmware `1.10` |
+| RetroLink MD | Mega Drive/Genesis 3-/6-button controller | [Revision `1.10`](hardware/md/1.10) | [MD source](software/md) and [UF2 artifacts](firmware/md); firmware `1.10` |
 
 The [USB specification](docs/specification.md) is version `1.00` and describes USB hardware revision `1.00`, not the MD variant. See the [MD wiring and behavior guide](software/md/README.md) for MD details and [docs/log.md](docs/log.md) for both variants' change log. Revisions are organized within each variant; a hardware directory does not imply a corresponding firmware release.
 
@@ -101,7 +101,7 @@ Output: [firmware/md/retrolink-md-1.00.uf2](firmware/md/retrolink-md-1.00.uf2). 
 
 The controller data pins are **MD_UP=GPIO28, MD_BA=GPIO27, MD_DOWN=GPIO26, MD_THSEL=GPIO15, MD_LEFT=GPIO14, MD_CSTART=GPIO13, MD_RIGHT=GPIO12**. MSX up/A/down/B/left/common/right remain on GPIO0/1/2/3/4/5/6.
 
-Firmware `1.00` reads standard 3- and 6-button pads, maps directions and B/C to the six MSX controls, and cancels opposing directions. A/Start/X/Y/Z/Mode are decoded but unmapped. Absent, invalid, or over-time frames release controls; reconnecting restores normal polling. GPIO5 monitors MSX OUT/common and releases all outputs when high. USB-C CDC provides diagnostics and GPIO16 LED pulses indicate newly asserted controls.
+Firmware `1.10` reads standard 3- and 6-button pads, maps directions and B/C to the six MSX controls, and cancels opposing directions. A/Start/X/Y/Z/Mode are decoded but unmapped. Absent, invalid, or over-time frames release controls; reconnecting restores normal polling. GPIO5 monitors MSX OUT/common and releases all outputs when high. USB-C CDC provides diagnostics and GPIO16 LED pulses indicate newly asserted controls.
 
 The MD [schematic](hardware/md/1.00/retrolink.kicad_sch), [PCB](hardware/md/1.00/retrolink.kicad_pcb), and [BOM](hardware/md/1.00/production/bom.csv) are available. MD pin 8 is ground, while MSX ground is pin 9 and MSX pin 8 is a driven signal. 
 
@@ -111,7 +111,7 @@ The MD build disables the RP2040 B0/B1 USB enumeration workaround because it tak
 
 ## RetroLink USB Firmware Behavior
 
-USB firmware version `1.00` decodes standard USB HID joystick/gamepad axes, hats, and buttons into six active-low MSX outputs: GPIO0/2/4/6 for up/down/left/right, GPIO1 for button A, and GPIO3 for button B. GPIO5 is reserved for the MSX OUT/strobe input, unused in joystick mode. Button usages 1 and 2 map to A and B. Outputs release to high impedance when inactive. The current source requires updated MSX wiring and USB-A D+/D- on GPIO27/28, not the original hardware revision `1.00` wiring. USB-C CDC provides diagnostics, and the RP2040 Zero status LED pulses on newly asserted controls. See [software/usb/README.md](software/usb/README.md#current-behavior) for supported layouts, decoder limits, and tests; physical controller/MSX validation remains required.
+USB firmware version `1.10` decodes standard USB HID joystick/gamepad axes, hats, and buttons into six active-low MSX outputs: GPIO0/2/4/6 for up/down/left/right, GPIO1 for button A, and GPIO3 for button B. GPIO5 is reserved for the MSX OUT/strobe input, unused in joystick mode. Button usages 1 and 2 map to A and B. Outputs release to high impedance when inactive. The current source requires updated MSX wiring and USB-A D+/D- on GPIO27/28, not the original hardware revision `1.00` wiring. USB-C CDC provides diagnostics, and the RP2040 Zero status LED pulses on newly asserted controls. See [software/usb/README.md](software/usb/README.md#current-behavior) for supported layouts, decoder limits, and tests; physical controller/MSX validation remains required.
 
 The current status LED implementation assumes the common RP2040 Zero onboard WS2812-compatible LED on GPIO 16. Validate this against the exact board variant before treating the build as hardware-final.
 
@@ -128,8 +128,6 @@ The latest hardware revision, `1.10`, includes the KiCad project, schematic, PCB
 - [Compact four-clip PLA case: STLs, STEP and print instructions](hardware/usb/1.10/case/README.md) (reinforced short roots and padded DB9 rear support; physical strength and retention testing pending).
 
 GitHub displays the iBOM HTML as a repository file, not an interactive page. Download the raw HTML or open the local file in a browser to use its component highlighting and assembly checklist.
-
-**Not yet electrically validated:** the revision `1.10` exported BOM contains only the four components listed below. It does not include BSS138 level shifters, 10 kOhm pull-ups, USB data-line passives/ESD protection, or a separate VBUS current limiter. Review the PCB against the [specification](docs/specification.md) before manufacture or connection to an MSX. RP2040 GPIOs are not 5 V tolerant; firmware high-impedance release does not replace level shifting.
 
 ## PCB Components
 
