@@ -53,6 +53,10 @@
 
 ### MD
 
+#### Hardware revision 1.10 - 2026-10-06
+
+- Connected the isolated RP2040 Zero GND pad to MSX pin 9 and MD pin 8 with a B.Cu track from J1.9 and a via into the RP2040 ground pour; earlier boards need a GND wire, as they work only while USB-C supplies ground. Regenerate the production outputs.
+
 #### Hardware revision 1.00 - 2026-09-23
 
 - Documented the MD DE9-to-DE9 board, updated controller GPIO assignments, and angled/front/back renders, with level conversion and electrical validation still required.
