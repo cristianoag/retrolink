@@ -20,7 +20,7 @@ load-rated. Print and test one pair before using it on equipment.
 | [Lid STL](retrolink-usb-1.10-lid.stl) | Top half, outside face already on the bed. |
 | [Case STEP](retrolink-usb-1.10-case.step) | Two assembled enclosure solids, without electronics or rubber pads. |
 | [Generator](case.py) | CadQuery dimensions, exports, rendering and fit validation. |
-| [Tests](test_case.py) | Twelve geometry regressions. |
+| [Tests](test_case.py) | Thirteen geometry regressions. |
 | [Dependencies](requirements.txt) | Pinned direct Python dependencies. |
 
 Use the current base **and** lid together: they are not interchangeable with
@@ -45,7 +45,7 @@ All dimensions are **millimetres**; slice at **100%**, without scaling.
 | Alignment-key clearance | 0.15 mm per mating face |
 | PCB lengthwise allowance | **0.10 mm per end / 0.20 mm total nominal travel** |
 | PCB side-to-side / vertical allowance | 0.35 mm per side / 0.20 mm |
-| USB-A opening | 17.4 x 9.5 mm |
+| USB-A opening | 17.4 x 8.5 mm; bottom raised 1 mm, top unchanged |
 | USB-C side wall | Closed; internal socket clearance retained |
 
 Dedicated stops at both PCB ends reduce the previous 0.70 mm modeled lengthwise

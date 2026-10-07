@@ -15,6 +15,8 @@ USB hardware is maintained separately under [hardware/usb](../usb/).
 
 Revision [1.10](1.10/) has a [compact four-clip PLA case](1.10/case/README.md)
 for its two DB9 connectors, with STLs, STEP and a parametric generator. Its
-50.19 x 33.50 x 19.70 mm plastic envelope matches the USB case; both DB9 flanges
-remain exposed and USB-C programming requires opening the case. Physical fit,
+54.19 x 33.50 x 19.70 mm plastic envelope is extended 4 mm toward the male DB9
+relative to the original USB-sized design. The male end mirrors the female-end
+profile instead of using the known incorrect male 3D model's through-passages.
+USB-C programming requires opening the case. Physical fit,
 clip durability and connector retention still require testing.

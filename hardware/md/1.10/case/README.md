@@ -2,8 +2,10 @@
 
 Two-piece PLA enclosure for the [MD revision 1.10 PCB](../retrolink.kicad_pcb),
 with a **male DB9 for the Mega Drive controller** and a **female DB9 for the MSX**.
-The plastic envelope is **50.19 x 33.50 x 19.70 mm**, exactly matching the current
-[USB 1.10 case](../../../usb/1.10/case/README.md).
+The plastic envelope is **54.19 x 33.50 x 19.70 mm**: 4 mm longer toward the male
+connector than the original MD case. Width and height still match the
+[USB 1.10 case](../../../usb/1.10/case/README.md). The female end, PCB and clips
+stay in their previous assembly positions.
 
 Four short internal clips, alignment keys, over-travel stops and tight PCB end
 stops carry over from USB. There are **no screws or long latches**. USB-C is
@@ -23,19 +25,20 @@ every real cable/port housing. Test one complete pair before use on equipment.
 | [Lid STL](retrolink-md-1.10-lid.stl) | MD top half, oriented with its outside face on the print bed. |
 | [Case STEP](retrolink-md-1.10-case.step) | Two assembled plastic solids for CAD editing. |
 | [Generator](md_case.py) | MD connector openings, assembly checks and CLI. |
-| [Tests](test_md_case.py) | Ten MD geometry regressions, including exact USB-size matching. |
+| [Tests](test_md_case.py) | Twelve MD geometry regressions, including one-sided extension and mirrored end profiles. |
 | [Dependencies](requirements.txt) | Reuses the USB enclosure's pinned CAD dependencies. |
 
 Dimensions are in **millimetres**. Slice at **100% scale**. Use both MD parts
-together; the common outside size does **not** make USB and MD halves
-interchangeable. The preview includes electronics and rubber pads, but the STL
-and STEP exports contain only the plastic case.
+together; reprint both halves for this revision. USB and MD halves are not
+interchangeable. The preview includes electronics and female-end rubber pads,
+but deliberately omits the known incorrect male connector model. STL and STEP
+exports contain only the plastic case.
 
 ## Geometry and connector access
 
 | Feature | Default |
 | --- | --- |
-| Plastic envelope, excluding exposed connectors | **50.19 x 33.50 x 19.70 mm** |
+| Plastic envelope, excluding exposed connectors | **54.19 x 33.50 x 19.70 mm** |
 | PCB | 43 x 28 x 1.6 mm; 2 mm corner radius |
 | Shell wall / roof / floor | 2.4 mm, except local pad recesses |
 | Individual clip lengths, including roots | 14.7 / 14.1 mm |
@@ -43,27 +46,30 @@ and STEP exports contain only the plastic case.
 | Clip engagement | 0.20 mm nominal |
 | PCB lengthwise allowance | 0.10 mm per end, **0.20 mm total nominal travel** |
 | Alignment-key clearance | 0.15 mm per mating face |
-| Male DB9 rear-shell opening | 20.4 mm wide x 11.8 mm high |
+| Male DB9 rear-shell opening | 20.4 mm wide x 11.9 mm high, mirrored from the female end |
 | Female DB9 rear-shell opening | 20.4 mm wide x 11.9 mm high |
 | Programming opening | None; USB-C remains internal |
 
-Both mating flanges and mounting holes stay outside the case, with no plastic
-lip in front of either mating face. The two end openings are intentionally
-different: the supplied male connector is not a mirror of the female part.
-Each end has a low split seam so the populated PCB can be lowered into the base.
-The male end also clears its long rear mounting bosses and solder pins.
+The male end now uses a mirrored copy of the female end's opening, shallow
+mounting reliefs, pad recesses, wall thickness and low split seam. The old
+male-specific circular through-passages are removed. The two end profiles are
+checked for matching geometry, not merely equal opening dimensions.
+
+This change follows the reported error in the supplied male connector model.
+The female flange remains exposed as before. The actual male flange and plug
+clearance must be verified on the real connector before use; the incorrect
+model is not evidence of fit for the replacement profile.
 
 The main PCB matches the USB outline, but the RP2040 Zero sits **2.835 mm farther
 toward the male DB9**. Its adjacent clip over-travel stops are repositioned to
-avoid the module substrate. Male-side board end stops also sit away from the
-connector's mounting bosses. The PCB supports avoid the diode and pin pads.
+avoid the module substrate. Board end stops and PCB supports remain in place;
+the extension does not add PCB travel or move the electronics.
 
 ### Size excludes protruding connectors
 
-The modeled MD assembly spans approximately **66.68 mm** from one connector tip
-to the other. That does not change the 50.19 mm plastic length: the male DB9
-projects beyond the end that holds the USB-A socket in the USB version.
-Matching case size does not imply matching total adapter length with connectors.
+The 54.19 mm dimension measures only the plastic, from x=-6.75 to x=47.44 mm
+in PCB coordinates. Do not use the known incorrect male model to infer the
+finished adapter's tip-to-tip length.
 
 ## Connector support and rubber pads
 
@@ -81,12 +87,12 @@ This is **not positive flange capture**. If the pads slip, the PCB and solder
 joints can still carry extraction force. Tight PCB end stops do not replace
 connector strain relief.
 
-The male **controller end has clearance and PCB locating support, but no padded
-grip or claimed extraction strain relief**. Its broad rear metal lands lie
-outside the fixed-size enclosure. Do not stuff extra pads around its pins or
-mounting bosses. Hold the exposed connector shell when disconnecting a tight
-controller plug; do not use the case as a lever. Grip and cycle-life testing
-remain necessary on both ends.
+The mirrored male end includes matching pad recesses, but **male-end pad fit,
+compression and grip are not validated**, because its model is incorrect.
+Do not install pads there without measuring the actual metal contact lands.
+Do not stuff pads around pins. Hold the exposed connector shell when
+disconnecting a tight controller plug; do not use the case as a lever.
+Grip and cycle-life testing remain necessary on both ends.
 
 ## Printing and assembly
 
@@ -104,7 +110,8 @@ Use PLA with a 0.4 mm nozzle and 0.20 mm layers as a starting point:
 1. Disconnect all cables. Dry-fit the empty halves and verify gentle engagement
    of all four hooks before installing the board.
 2. Lower the PCB onto its four support lands, male DB9 at one end and female at
-   the other. Both flanges remain outside; do not press on the pins or diode.
+   the other. Check the real male connector against the revised opening before
+   closing; do not press on the pins or diode.
 3. Fit the two rubber strips at the female MSX end after the unpadded fit is
    satisfactory. Align the stepped ends and alignment keys, then press near each
    clip. Stop if anything binds or a pad holds the seam open.
@@ -148,7 +155,8 @@ Changes to module mounting height, connector models or outside dimensions need
 a new CAD fit review; the MD CLI deliberately does not expose size-changing
 parameters.
 
-For full component checks, export MD 1.10 with KiCad 10:
+For component checks excluding the known incorrect male model, export MD 1.10
+with KiCad 10:
 
 ```powershell
 $assembly = Join-Path $env:TEMP 'retrolink-md-1.10-fit.step'
@@ -161,16 +169,23 @@ Remove-Item $assembly
 The local origin is the PCB lower-left corner, z=0 at its underside; +X points
 toward the female DB9 and +Y toward the internal USB-C socket.
 
+The generator requires the expected original assembly bounds, identifies the
+known incorrect male solid by its bounds and volume, and prints an explicit
+warning before excluding it from checks and the preview. It fails if the
+signature is not recognized. No PCB or component source model is modified.
+When a corrected male model becomes available, update this validation path
+rather than continuing to exclude it.
+
 Validation covers:
 
-- Exactly the USB default envelope, four short clips and 0.20 mm nominal PCB travel.
-- No nominal PCB, half-to-half or supplied MD assembly overlap.
-- Populated-board and lid insertion at twelve sampled heights.
-- Two different DB9 openings, exposed flanges and a closed USB-C side.
+- A 4 mm male-only extension, unchanged width/height, four clips and 0.20 mm PCB travel.
+- No nominal PCB, half-to-half or remaining MD component overlap.
+- Board and lid insertion at twelve sampled heights, excluding the male connector.
+- Mirrored end profiles, removed through-passages and a closed USB-C side.
 - Shifted-module clearance, solder keepouts, clip release and over-travel stops.
 - Two female-end pad lands contacting only the metal backshell.
 - Connected, watertight print meshes at bed z=0 and a two-solid STEP round-trip.
-- All ten MD tests plus the twelve USB tests after sharing geometry code.
+- Twelve MD tests plus thirteen USB regression tests.
 
 These are geometric checks, not a slicer simulation, material deformation model,
 mechanical load test or electrical validation.

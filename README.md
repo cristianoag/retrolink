@@ -105,7 +105,7 @@ Firmware `1.10` reads standard 3- and 6-button pads, maps directions and B/C to 
 
 The MD [schematic](hardware/md/1.00/retrolink.kicad_sch), [PCB](hardware/md/1.00/retrolink.kicad_pcb), and [BOM](hardware/md/1.00/production/bom.csv) are available. MD pin 8 is ground, while MSX ground is pin 9 and MSX pin 8 is a driven signal. 
 
-MD [revision `1.10`](hardware/md/1.10) also has a [dual-DB9 four-clip PLA case](hardware/md/1.10/case/README.md), matching the USB case's 50.19 x 33.50 x 19.70 mm plastic envelope. Physical case fit and retention testing remain pending.
+MD [revision `1.10`](hardware/md/1.10) also has a [dual-DB9 four-clip PLA case](hardware/md/1.10/case/README.md), measuring 54.19 x 33.50 x 19.70 mm after a 4 mm extension toward the male connector, with mirrored DB9 end profiles. Physical case fit and retention testing remain pending, particularly at the male end whose supplied 3D model is incorrect.
 
 The MD build disables the RP2040 B0/B1 USB enumeration workaround because it takes over GPIO15 (MD SELECT); B2 silicon is preferred for USB-C diagnostics.
 

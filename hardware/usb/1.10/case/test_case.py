@@ -3,7 +3,7 @@
 import unittest
 from dataclasses import replace
 
-from case import Dimensions, box, build, clip, other_side, pads, print_shapes, rounded_box, validate
+from case import Dimensions, box, build, clip, other_side, pads, port_tools, print_shapes, rounded_box, validate
 
 
 class EnclosureTests(unittest.TestCase):
@@ -52,6 +52,19 @@ class EnclosureTests(unittest.TestCase):
                              self.d.ymax, 2.165, 9.365)
         closed = self.base.fuse(self.lid)
         self.assertLess(former_opening.cut(closed).Volume(), 1e-5)
+
+    def test_usb_a_bottom_raised_one_mm(self):
+        opening = port_tools(self.d)["usb_a"]
+        bounds = opening.BoundingBox()
+        self.assertAlmostEqual(bounds.zmin, 1.0)
+        self.assertAlmostEqual(bounds.zmax, 9.5)
+        self.assertAlmostEqual(bounds.zlen, 8.5)
+        self.assertAlmostEqual(bounds.ymin, 5.3)
+        self.assertAlmostEqual(bounds.ymax, 22.7)
+        sill = box(self.d.xmin, -self.d.fit_clearance, 5.3, 22.7, 0, 1)
+        self.assertLess(sill.cut(self.base).Volume(), 1e-5)
+        for part in (self.base, self.lid):
+            self.assertLess(part.intersect(opening).Volume(), 1e-5)
 
     def test_four_hooks_engage_and_release(self):
         for right in (False, True):

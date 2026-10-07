@@ -121,7 +121,7 @@ def rounded_box(x0, x1, y0, y1, z0, z1, radius):
 
 def port_tools(d):
     tools = {
-        "usb_a": box(d.xmin - 1, 3, 5.3, 22.7, 0, 9.5),
+        "usb_a": box(d.xmin - 1, 3, 5.3, 22.7, 1.0, 9.5),
         "db9_rear": box(42.5, d.xmax + 1, 3.8, 24.2, -5.35, 6.55),
     }
     for index, y in enumerate((1.505, 26.505)):
@@ -187,13 +187,13 @@ def keys(d):
         yield other_side(key, d), other_side(pocket, d)
 
 
-def shell_halves(d, tools, left_split=None):
+def shell_halves(d, tools, left_split=None, cavity_xmin=None):
     d.validate()
     outer = rounded_box(
         d.xmin, d.xmax, d.ymin, d.ymax, d.bottom, d.top, 2.4
     )
     cavity = rounded_box(
-        -d.fit_clearance, 44.4,
+        -d.fit_clearance if cavity_xmin is None else cavity_xmin, 44.4,
         d.side_inner, d.board_y - d.side_inner,
         d.floor_top, d.roof, 0.8,
     )

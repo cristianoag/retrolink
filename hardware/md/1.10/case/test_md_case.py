@@ -3,7 +3,7 @@
 import unittest
 from dataclasses import replace
 
-from md_case import Dimensions, build, port_tools, usb, validate
+from md_case import Dimensions, build, exclude_incorrect_male_model, mirror_end, port_tools, usb, validate
 
 
 class MDEnclosureTests(unittest.TestCase):
@@ -12,13 +12,15 @@ class MDEnclosureTests(unittest.TestCase):
         cls.d = Dimensions()
         cls.base, cls.lid = build(cls.d)
 
-    def test_exact_usb_envelope(self):
+    def test_four_mm_extension_only_toward_male(self):
         validate(self.base, self.lid, self.d)
-        usb_base, usb_lid = usb.build(self.d)
+        usb_base, usb_lid = usb.build(usb.Dimensions())
         actual = self.base.fuse(self.lid).BoundingBox()
         reference = usb_base.fuse(usb_lid).BoundingBox()
-        for dimension, target in zip(("xlen", "ylen", "zlen"), (50.19, 33.50, 19.70)):
+        for dimension, target in zip(("xlen", "ylen", "zlen"), (54.19, 33.50, 19.70)):
             self.assertAlmostEqual(getattr(actual, dimension), target, places=5)
+        self.assertAlmostEqual(actual.xmin, reference.xmin - 4, places=5)
+        for dimension in ("xmax", "ymin", "ymax", "zmin", "zmax"):
             self.assertAlmostEqual(getattr(actual, dimension), getattr(reference, dimension), places=5)
 
     def test_both_db9_ports_and_flanges_clear(self):
@@ -26,9 +28,23 @@ class MDEnclosureTests(unittest.TestCase):
             for name, tool in port_tools(self.d).items():
                 with self.subTest(port=name):
                     self.assertLess(part.intersect(tool).Volume(), 1e-5)
-            # Neither end covers the modeled mating flange.
-            self.assertGreater(part.BoundingBox().xmin, -5.7425)
             self.assertLess(part.BoundingBox().xmax, 47.64)
+
+    def test_end_profiles_are_exact_mirrors(self):
+        d = self.d
+        slab = usb.box(d.xmax - 3.0, d.xmax + 1, d.ymin - 1, d.ymax + 1, d.bottom - 1, d.top + 1)
+        for part in (self.base, self.lid):
+            female = part.intersect(slab)
+            male = mirror_end(part.intersect(mirror_end(slab, d)), d)
+            self.assertLess(female.cut(male).Volume() + male.cut(female).Volume(), 1e-5)
+        # The previous long circular passages are now backed by solid plastic.
+        for y in (1.51, 26.50):
+            plug = usb.box(d.xmin + 1.2, d.xmin + 2.4, y - 0.4, y + 0.4, 0.2, 1.5)
+            self.assertLess(plug.cut(self.base.fuse(self.lid)).Volume(), 1e-5)
+
+    def test_bad_model_exclusion_requires_known_signature(self):
+        with self.assertRaisesRegex(ValueError, "known incorrect male DB9"):
+            exclude_incorrect_male_model(usb.box(0, 1, 0, 1, 0, 1))
 
     def test_four_short_clips(self):
         for right in (False, True):
@@ -114,7 +130,7 @@ class MDEnclosureTests(unittest.TestCase):
             validate(base, lid, d)
             self.assert_board_travel(base, d)
             b = base.fuse(lid).BoundingBox()
-            self.assertAlmostEqual(b.xlen, 50.19, places=5)
+            self.assertAlmostEqual(b.xlen, 54.19, places=5)
             self.assertAlmostEqual(b.ylen, 33.5, places=5)
             self.assertAlmostEqual(b.zlen, 19.7, places=5)
 

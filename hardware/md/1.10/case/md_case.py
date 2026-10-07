@@ -1,8 +1,9 @@
-"""MD 1.10 dual-DB9 enclosure, matching the compact USB case envelope."""
+"""MD 1.10 enclosure, extended 4 mm toward the male DB9 with mirrored end profiles."""
 
 import argparse
 import importlib.util
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 import cadquery as cq
@@ -15,28 +16,51 @@ if spec is None or spec.loader is None:
 usb = importlib.util.module_from_spec(spec)
 sys.modules[spec.name] = usb
 spec.loader.exec_module(usb)
-Dimensions = usb.Dimensions
+
+
+@dataclass(frozen=True)
+class Dimensions(usb.Dimensions):
+    @property
+    def xmin(self):
+        return super().xmin - 4.0
+
+
+def mirror_end(shape, d):
+    return shape.mirror("YZ", ((d.xmin + d.xmax) / 2, 0, 0))
 
 
 def port_tools(d):
     tools = {name: tool for name, tool in usb.port_tools(d).items() if name != "usb_a"}
-    tools["md_male_shell"] = usb.box(d.xmin - 1, -0.5, 3.8, 24.2, -4.9, 6.9)
-    tools["md_male_pins"] = usb.box(-0.5, 4.8, 7.5, 20.5, -1.3, 3.1)
-    for index, y in enumerate((1.51, 26.50)):
-        tools[f"md_male_mount_{index}"] = (
-            cq.Workplane("YZ").center(y, 0.895).circle(2.85)
-            .extrude(0.06 - (d.xmin - 1)).translate((d.xmin - 1, 0, 0)).val()
-        )
+    tools.update({f"male_{name}": mirror_end(tool, d) for name, tool in list(tools.items())})
     return tools
 
 
 def build(d):
-    base, lid = usb.shell_halves(d, port_tools(d), left_split=(0.20, 0.895))
+    end_sum = d.xmin + d.xmax
+    base, lid = usb.shell_halves(
+        d, port_tools(d), left_split=(end_sum - 43.8, 0.595),
+        cavity_xmin=end_sum - 44.4,
+    )
     # RZ1 is 2.835 mm closer to J2 than on USB; keep the stop clear of its substrate.
     return usb.finish_case(
         base, lid, d, stop_spans=((10.0, 12.0), (34.4, 36.4)),
         left_end_stop_ys=(4.6, 22.0), left_end_stop_top=0.895,
     )
+
+
+def exclude_incorrect_male_model(assembly):
+    solids = assembly.Solids()
+    candidates = [
+        solid for solid in solids
+        if abs(solid.BoundingBox().xmin - (-12.1374)) < 0.01
+        and abs(solid.BoundingBox().xmax - 4.5575) < 0.01
+        and abs(solid.Volume() - 1298.855) < 0.1
+    ]
+    if len(candidates) != 1:
+        raise ValueError("Cannot identify the known incorrect male DB9 model; review assembly")
+    print("WARNING: known incorrect male DB9 model excluded from fit checks and preview; "
+          "the replacement male-end profile requires a physical fit test.")
+    return cq.Compound.makeCompound([solid for solid in solids if not solid.isSame(candidates[0])])
 
 
 def validate(base, lid, d, assembly_path=None):
@@ -61,6 +85,7 @@ def validate(base, lid, d, assembly_path=None):
         actual = (bounds.xmin, bounds.xmax, bounds.ymin, bounds.ymax, bounds.zmin, bounds.zmax)
         if any(abs(a - b) > 0.1 for a, b in zip(actual, expected)):
             raise ValueError("Unexpected MD assembly bounds; check revision and STEP origin")
+        assembly = exclude_incorrect_male_model(assembly)
         for name, shape in (("base", base), ("lid", lid)):
             overlap = shape.intersect(assembly).Volume()
             print(f"{name}/MD assembly intersection: {overlap:.6f} mm^3")
@@ -86,7 +111,7 @@ def validate(base, lid, d, assembly_path=None):
                 raise ValueError("MSX pad contacts a non-shell component")
             if compressed.intersect(assembly).Volume() > 1e-5:
                 raise ValueError("Compressed pad intersects MD components")
-        print("MD PCB/lid insertion clear; two MSX pad lands contact metal only")
+        print("MD PCB/lid insertion clear excluding male connector; two MSX pad lands contact metal only")
     return assembly
 
 

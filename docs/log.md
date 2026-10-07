@@ -42,6 +42,11 @@
 
 #### Hardware revision 1.10 - 2026-09-23
 
+- Raised the USB case's USB-A opening bottom by 1 mm, reducing its height to 8.5 mm without changing its top, width or the MD case.
+- Shared the USB case geometry and export helpers with the MD enclosure while preserving USB default dimensions and geometry.
+- Added dedicated case end stops targeting 0.20 mm total nominal PCB lengthwise play and closed the USB-C side opening; programming now requires opening the case.
+- Revised the compact case with four short radiused-root clips, alignment keys, over-travel stops and a low-preload padded DB9 metal cradle, keeping the flange exposed; physical strength and retention remain unvalidated.
+- Added a two-piece PLA snap-fit enclosure prototype with USB-A/DB9/USB-C access, parametric CAD, printable STLs, and geometry checks; physical fit and clip strength remain unvalidated.
 - Identified `1.10` as the latest USB hardware revision and replaced the README previews with updated angled, top, and bottom 3D renders.
 
 #### Hardware revision 1.00 - 2026-09-20
@@ -56,7 +61,9 @@
 
 #### Hardware revision 1.10 - 2026-10-06
 
+- Extended the MD case 4 mm toward the male DB9 and mirrored the female-end profile to remove the incorrect-model through-passages; male-connector fit requires physical validation.
 - Connected the isolated RP2040 Zero GND pad to MSX pin 9 and MD pin 8 with a B.Cu track from J1.9 and a via into the RP2040 ground pour; earlier boards need a GND wire, as they work only while USB-C supplies ground. Regenerate the production outputs.
+- Added a dual-DB9 four-clip PLA enclosure matching the USB case's 50.19 x 33.50 x 19.70 mm size, with tight PCB end stops, enclosed USB-C and padded MSX-side support; physical validation remains pending.
 
 #### Hardware revision 1.00 - 2026-09-23
 
