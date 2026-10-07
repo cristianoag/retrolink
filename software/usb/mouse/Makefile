@@ -1,6 +1,6 @@
-FIRMWARE_VERSION := 1.10
+FIRMWARE_VERSION := 1.00
 BUILD_DIR := build
-UF2_NAME := retrolink-joystick-$(FIRMWARE_VERSION).uf2
+UF2_NAME := retrolink-mouse-$(FIRMWARE_VERSION).uf2
 UF2_OUTPUT := ../../../firmware/usb/$(UF2_NAME)
 
 CMAKE_BUILD_TYPE ?= Release
@@ -40,7 +40,7 @@ configure:
 	"$(CMAKE)" $(CMAKE_GENERATOR_FLAG) $(CMAKE_MAKE_PROGRAM_FLAG) $(PYTHON3_EXECUTABLE_FLAG) $(PICO_TOOLCHAIN_PATH_FLAG) $(PICOTOOL_DIR_FLAG) $(PIOASM_DIR_FLAG) $(PICO_PIO_USB_PATH_FLAG) -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) -DRETROLINK_FW_VERSION=$(FIRMWARE_VERSION) $(PICO_SDK_PATH_FLAG)
 
 uf2: configure
-	"$(CMAKE)" --build $(BUILD_DIR) --target retrolink_export_uf2
+	"$(CMAKE)" --build $(BUILD_DIR) --target retrolink_mouse_export_uf2
 	@echo Generated $(UF2_OUTPUT)
 
 clean:

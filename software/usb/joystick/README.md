@@ -1,6 +1,6 @@
-# RetroLink USB Software
+# RetroLink USB Joystick Firmware
 
-USB firmware source code lives under this directory. Generated UF2 files are copied to `../../firmware/usb/` by the CMake build. The planned MD variant has a separate directory at `../md/`.
+USB joystick/gamepad firmware source code lives under this directory. Generated UF2 files are copied to `../../../firmware/usb/` by the CMake build. The USB mouse firmware for the same hardware is in [`../mouse/`](../mouse/README.md), and the MD variant is in [`../../md/`](../../md/README.md). The mouse and MD builds reuse this directory's shared LED, CDC debug, USB descriptor, and `joystick.h` sources.
 
 ## Build
 
@@ -8,7 +8,7 @@ Prerequisites:
 
 - Raspberry Pi Pico SDK available through `PICO_SDK_PATH`.
 - A Pico SDK version that provides TinyUSB host support for RP2040 and PIO USB host support on GPIO 27 and GPIO 28.
-- Pico-PIO-USB providing `pio_usb.h` and the `pico_pio_usb` CMake target; the Makefile defaults to the repo submodule at `../third_party/Pico-PIO-USB`.
+- Pico-PIO-USB providing `pio_usb.h` and the `pico_pio_usb` CMake target; the Makefile defaults to the repo submodule at `../../third_party/Pico-PIO-USB`.
 - CMake and an ARM GCC toolchain supported by the Pico SDK.
 
 Build from this directory:
@@ -17,7 +17,7 @@ Build from this directory:
 make
 ```
 
-On Windows, the Makefile discovers the Pico SDK-managed tools and SDK under `%USERPROFILE%\.pico-sdk` (or the `PICO_SDK_ROOT` override), without depending on a particular account name or installed version. If managed Python is not present, CMake searches for Python on `PATH`. Pico-PIO-USB is repo-managed under `../third_party/Pico-PIO-USB`. Override `PICO_SDK_ROOT`, `CMAKE`, `CMAKE_MAKE_PROGRAM`, `PYTHON3_EXECUTABLE`, `PICO_SDK_PATH`, `PICO_TOOLCHAIN_PATH`, `PICOTOOL_DIR`, `PIOASM_DIR`, or `PICO_PIO_USB_PATH` on the `make` command line if your installation differs.
+On Windows, the Makefile discovers the Pico SDK-managed tools and SDK under `%USERPROFILE%\.pico-sdk` (or the `PICO_SDK_ROOT` override), without depending on a particular account name or installed version. If managed Python is not present, CMake searches for Python on `PATH`. Pico-PIO-USB is repo-managed under `../../third_party/Pico-PIO-USB`. Override `PICO_SDK_ROOT`, `CMAKE`, `CMAKE_MAKE_PROGRAM`, `PYTHON3_EXECUTABLE`, `PICO_SDK_PATH`, `PICO_TOOLCHAIN_PATH`, `PICOTOOL_DIR`, `PIOASM_DIR`, or `PICO_PIO_USB_PATH` on the `make` command line if your installation differs.
 
 After cloning the repository, initialize dependencies with:
 
@@ -28,17 +28,17 @@ git submodule update --init --recursive
 Or configure and build from the repository root:
 
 ```powershell
-cmake -S software/usb -B software/usb/build -DPICO_SDK_PATH=$env:PICO_SDK_PATH
-cmake --build software/usb/build
+cmake -S software/usb/joystick -B software/usb/joystick/build -DPICO_SDK_PATH=$env:PICO_SDK_PATH
+cmake --build software/usb/joystick/build
 ```
 
 The expected firmware artifact is:
 
 ```text
-firmware/usb/retrolink-1.10.uf2
+firmware/usb/retrolink-joystick-1.10.uf2
 ```
 
-The Makefile passes `FIRMWARE_VERSION` to CMake, so the UF2 file name and the firmware's reported version stay in sync.
+The Makefile passes `FIRMWARE_VERSION` to CMake, so the UF2 file name and the firmware's reported version stay in sync. Joystick UF2 files use the `retrolink-joystick-<version>.uf2` name; releases `1.00` and `1.10` were renamed from `retrolink-<version>.uf2` without changing their contents.
 
 ## Current Behavior
 
@@ -66,7 +66,7 @@ Absolute X/Y axes use the descriptor's logical range: below 25% asserts left/up,
 
 States are kept separately per report ID and interface and combined for the MSX port. Detach, truncated reports, and failed receive requests release the affected interface's contribution without releasing another controller's held controls. A failed receive request is logged; reconnect the controller to restart reception. Unknown report IDs leave the current state unchanged. The LED pulses on newly asserted decoded controls.
 
-The decoder supports absolute variable fields in Joystick/Game Pad application collections, signed/unsigned fields up to 32 bits, and report IDs. It uses fixed limits: 32 mapped fields, 8 input report IDs, 512 input payload bits per report, 32 explicit local usages, 8 collection levels, and 4 global push levels. Oversized or unsupported descriptors are logged as `supported=0` and do not drive outputs. Array controls, relative axes, vendor-specific protocols, local delimiters, and long descriptor items are not supported; unsupported fields are ignored when other usable controls exist. Mouse emulation is not implemented. These limits and mappings have not yet been validated against the user's physical controller.
+The decoder supports absolute variable fields in Joystick/Game Pad application collections, signed/unsigned fields up to 32 bits, and report IDs. It uses fixed limits: 32 mapped fields, 8 input report IDs, 512 input payload bits per report, 32 explicit local usages, 8 collection levels, and 4 global push levels. Oversized or unsupported descriptors are logged as `supported=0` and do not drive outputs. Array controls, relative axes, vendor-specific protocols, local delimiters, and long descriptor items are not supported; unsupported fields are ignored when other usable controls exist. USB mice are handled by the separate [mouse firmware](../mouse/README.md). These limits and mappings have not yet been validated against the user's physical controller.
 
 Use a serial terminal on the USB-C CDC device to monitor boot, host initialization, HID mount/unmount, descriptor mapping status, receive failures, and decoded state changes. The state byte uses bits 0 through 5 for up, down, left, right, A, and B respectively.
 
@@ -81,13 +81,13 @@ The status LED implementation assumes the common RP2040 Zero onboard WS2812-comp
 
 ## Host Tests
 
-After a firmware build has created `software/usb/build`, run from the repository root with a native GCC compiler:
+After a firmware build has created `software/usb/joystick/build`, run from the repository root with a native GCC compiler:
 
 ```powershell
-gcc -std=c11 -Wall -Wextra -Werror -I software/usb/include software/usb/src/hid_joystick.c software/usb/tests/hid_joystick_test.c -o software/usb/build/hid_joystick_test.exe
-./software/usb/build/hid_joystick_test.exe
-gcc -std=c11 -Wall -Wextra -Werror -I software/usb/tests/stubs -I software/usb/include software/usb/src/msx_port.c software/usb/tests/msx_port_test.c -o software/usb/build/msx_port_test.exe
-./software/usb/build/msx_port_test.exe
+gcc -std=c11 -Wall -Wextra -Werror -I software/usb/joystick/include software/usb/joystick/src/hid_joystick.c software/usb/joystick/tests/hid_joystick_test.c -o software/usb/joystick/build/hid_joystick_test.exe
+./software/usb/joystick/build/hid_joystick_test.exe
+gcc -std=c11 -Wall -Wextra -Werror -I software/usb/joystick/tests/stubs -I software/usb/joystick/include software/usb/joystick/src/msx_port.c software/usb/joystick/tests/msx_port_test.c -o software/usb/joystick/build/msx_port_test.exe
+./software/usb/joystick/build/msx_port_test.exe
 ```
 
 Tests cover descriptor bounds, report IDs, axes, hats, buttons, the exact GPIO assignments, high-impedance release, held-control continuity, and opposing directions. GPIO tests also verify that OUT/strobe and unrelated pins remain untouched. GPIO tests use a stub; they do not establish electrical or USB runtime correctness. On hardware, verify each direction and button, simultaneous controls, neutral release, and unplugging while controls are held.

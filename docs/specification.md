@@ -16,7 +16,7 @@ This document defines the initial hardware and firmware-facing specification for
 - Provide a USB-A host connector for USB HID joystick and mouse devices.
 - Present MSX-compatible joystick and mouse signals through a DB9 connector.
 - Keep the firmware architecture compatible with the Raspberry Pi Pico SDK and TinyUSB where practical.
-- Keep USB firmware source code under `software/usb/` and generated UF2 artifacts under `firmware/usb/`.
+- Keep USB firmware source code under `software/usb/` (joystick firmware in `software/usb/joystick/`, mouse firmware in `software/usb/mouse/`) and generated UF2 artifacts under `firmware/usb/`.
 - Avoid direct 5 V exposure on RP2040 GPIO pins.
 - Keep connector assignments and electrical assumptions documented from the first revision.
 
@@ -182,7 +182,7 @@ For hardware revision `1.00`, a BSS138 channel may be used for a logic-level pre
 
 ## Firmware Architecture Implications
 
-USB firmware source code lives under `software/usb/`. Generated USB UF2 files live under `firmware/usb/`.
+USB firmware source code lives under `software/usb/`: the joystick firmware in `software/usb/joystick/` and the mouse firmware in `software/usb/mouse/`. Both target the same USB hardware. Generated USB UF2 files live under `firmware/usb/` as `retrolink-joystick-<version>.uf2` and `retrolink-mouse-<version>.uf2`.
 
 The wiring above should be reflected in firmware as board-level configuration, not scattered GPIO constants.
 
@@ -200,9 +200,11 @@ Recommended firmware modules:
 
 Firmware version `1.00` provides USB-C CDC debug and descriptor-based USB HID joystick/gamepad translation. The current source drives up/down/left/right on GPIO0/2/4/6 (DB9 pins 1/2/3/4); button usages 1/2 drive A/B on GPIO1/3 (DB9 pins 6/7). This requires updated wiring rather than the original hardware revision `1.00` assignments above. Absolute X/Y axes, four/eight-way hats, and discrete D-pad usages are supported. Outputs assert low and release to high impedance through the documented level shifters. The first report is decoded directly, without neutral calibration. Axis thresholds are below 25% and above 75% of the descriptor's logical range, with the middle 50% neutral. Opposing directions cancel. GPIO5 / DB9 pin 8 is reserved for the MSX OUT/strobe input and is neither initialized, read, nor driven in this joystick mode. The unused GPIO4/5 USB VBUS control/fault reservations have been removed; those circuits must not share the MSX pins.
 
-States are combined across report IDs and interfaces. Detach, invalid reports, or failed receive requests release the affected interface's state; a receive-request failure requires reconnection. CDC reports mapping support and state changes, and the GPIO16 LED pulses on newly asserted controls. Vendor-specific protocols and mouse emulation are not implemented. See [software behavior and tests](../software/usb/README.md#current-behavior) for decoder limits, public interfaces, and host-test commands. Compilation and simulated tests do not replace validation with the actual joystick and MSX hardware.
+States are combined across report IDs and interfaces. Detach, invalid reports, or failed receive requests release the affected interface's state; a receive-request failure requires reconnection. CDC reports mapping support and state changes, and the GPIO16 LED pulses on newly asserted controls. Vendor-specific protocols are not implemented, and the joystick firmware does not handle mice. See [software behavior and tests](../software/usb/joystick/README.md#current-behavior) for decoder limits, public interfaces, and host-test commands. Compilation and simulated tests do not replace validation with the actual joystick and MSX hardware.
 
-Original firmware constants for hardware revision `1.00` (historical wiring, not the current source mapping; see the [current GPIO table](../software/usb/README.md#current-behavior)):
+USB mouse firmware version `1.00` runs on the same hardware revision `1.10` pin assignments and implements the standard MSX mouse protocol. GPIO5 / DB9 pin 8 is read as the MSX strobe. Each edge presents the next nibble of the signed 8-bit X and Y offsets on DB9 pins 1-4 (GPIO0/2/4/6), high nibble first, with positive X meaning left and positive Y meaning up. The left and right buttons drive DB9 pins 6/7 (GPIO1/3). The alternate BIOS read cycle reports zero, so the BIOS detects a mouse rather than a trackball. A 1.5 ms gap between strobe edges restarts the sequence. A dedicated RP2040 core polls pin 8 and updates the outputs from RAM. Holding the left button while the mouse connects selects joystick emulation. See the [mouse firmware guide](../software/usb/mouse/README.md#current-behavior) for supported mice, scaling, and tests; the timing still requires validation on physical MSX machines.
+
+Original firmware constants for hardware revision `1.00` (historical wiring, not the current source mapping; see the [current GPIO table](../software/usb/joystick/README.md#current-behavior)):
 
 | Constant | Value |
 | --- | --- |
@@ -224,24 +226,26 @@ Original firmware constants for hardware revision `1.00` (historical wiring, not
 
 ## Firmware Build
 
-USB firmware version `1.00` uses the Raspberry Pi Pico SDK build system from `software/usb/`.
+The USB joystick firmware uses the Raspberry Pi Pico SDK build system from `software/usb/joystick/`; the mouse firmware uses the same system from `software/usb/mouse/`.
 
 Expected build commands from the repository root:
 
 ```powershell
 git submodule update --init --recursive
-make -C software/usb
+make -C software/usb/joystick
+make -C software/usb/mouse
 ```
 
-The Makefile supplies Pico SDK, toolchain, and Pico-PIO-USB paths. See [software build instructions](../software/usb/README.md#build) for prerequisites and overrides on other machines.
+The Makefile supplies Pico SDK, toolchain, and Pico-PIO-USB paths. See [software build instructions](../software/usb/joystick/README.md#build) for prerequisites and overrides on other machines.
 
-The build is configured to copy the UF2 artifact to:
+The builds are configured to copy their UF2 artifacts to:
 
 ```text
-firmware/usb/retrolink-1.00.uf2
+firmware/usb/retrolink-joystick-<version>.uf2
+firmware/usb/retrolink-mouse-<version>.uf2
 ```
 
-The current firmware uses TinyUSB device CDC on native USB root port 0, TinyUSB host on Pico-PIO-USB root port 1, and a 120 MHz system clock. The current source configures GPIO27 (D+) and GPIO28 (D-) and requires updated USB-A and MSX wiring. The hardware revision `1.00` tables above retain the original wiring; the current build is not compatible with that wiring. See the [software compatibility notes](../software/usb/README.md#current-behavior).
+The current firmware uses TinyUSB device CDC on native USB root port 0, TinyUSB host on Pico-PIO-USB root port 1, and a 120 MHz system clock. The current source configures GPIO27 (D+) and GPIO28 (D-) and requires updated USB-A and MSX wiring. The hardware revision `1.00` tables above retain the original wiring; the current build is not compatible with that wiring. See the [software compatibility notes](../software/usb/joystick/README.md#current-behavior).
 
 ## Reserved GPIO Pins
 
@@ -289,5 +293,5 @@ Before freezing hardware revision `1.00`, validate and document:
 - What maximum USB device current should RetroLink support?
 - What current limit should be used for USB-A VBUS when the board is powered from MSX DB9 pin 5?
 - Does the selected 1N5819 diode preserve enough post-diode voltage for the board and USB-A device across the validated MSX port current budget?
-- Which MSX mouse protocol timing requirements must be supported first?
+- Which MSX mouse protocol timing requirements must be supported beyond the implemented BIOS-compatible baseline (1.5 ms strobe timeout, zeroed alternate cycle), for example the 2014 extended protocol or trackball emulation?
 - Should hardware revision `1.00` support one DB9 port only, or reserve mechanical and GPIO space for a second port?

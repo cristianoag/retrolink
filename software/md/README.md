@@ -1,6 +1,6 @@
 # RetroLink MD Software
 
-RP2040 Zero firmware `1.10` for RetroLink MD hardware revision `1.10`; its GPIO assignments also match revision `1.00`. It polls standard Mega Drive/Genesis 3-button and 6-button controllers and translates directions plus B/C into MSX joystick signals. This is a separate build from [RetroLink USB](../usb/); do not flash the USB UF2 onto the MD board.
+RP2040 Zero firmware `1.10` for RetroLink MD hardware revision `1.10`; its GPIO assignments also match revision `1.00`. It polls standard Mega Drive/Genesis 3-button and 6-button controllers and translates directions plus B/C into MSX joystick signals. This is a separate build from [RetroLink USB](../usb/README.md); do not flash a USB joystick or mouse UF2 onto the MD board.
 
 ## Wiring
 
@@ -70,7 +70,7 @@ The Makefile follows the USB project's Windows tool discovery under `%USERPROFIL
 
 Output: [firmware/md/retrolink-md-1.10.uf2](../../firmware/md/retrolink-md-1.10.uf2). The Makefile's `FIRMWARE_VERSION` is passed to CMake (default in `CMakeLists.txt`) so the UF2 name and reported version match; hardware assignments and polling timings live in `include/retrolink/board_config.h`.
 
-The target reuses the unchanged USB project's `joystick.h`, `status_led.h`, `status_led.c`, and `ws2812.pio`. Its own include directory comes first, so the shared LED driver uses the MD board configuration. MD protocol and MSX common-line handling are separate modules; no USB host code is linked.
+The target reuses the USB joystick project's (`../usb/joystick`) `joystick.h`, `status_led.h`, `status_led.c`, and `ws2812.pio`. Its own include directory comes first, so the shared LED driver uses the MD board configuration. MD protocol and MSX common-line handling are separate modules; no USB host code is linked.
 
 `md_port_poll()` requires a non-null output state and at least the configured TH-high reset interval between calls. It always ends with TH high and returns an explicit poll result; the main loop logs absent/invalid or timing-error status and releases MSX controls. `md_pad_decode()` operates on packed D0..D5 samples; `md_pad_to_msx()` maps B/C and cancels opposing directions.
 
@@ -81,9 +81,9 @@ Native CMake test mode is available with `RETROLINK_HOST_TESTS=ON`; use a separa
 Alternatively, after creating `software/md/build`, run the native GCC tests from the repository root:
 
 ```powershell
-gcc -std=c11 -Wall -Wextra -Werror -I software\md\include -I software\usb\include software\md\src\md_pad.c software\md\tests\md_pad_test.c -o software\md\build\md_pad_test.exe
+gcc -std=c11 -Wall -Wextra -Werror -I software\md\include -I software\usb\joystick\include software\md\src\md_pad.c software\md\tests\md_pad_test.c -o software\md\build\md_pad_test.exe
 .\software\md\build\md_pad_test.exe
-gcc -std=c11 -Wall -Wextra -Werror -I software\md\tests\stubs -I software\md\include -I software\usb\include software\md\src\md_pad.c software\md\src\md_port.c software\md\src\msx_output.c software\md\tests\md_io_test.c -o software\md\build\md_io_test.exe
+gcc -std=c11 -Wall -Wextra -Werror -I software\md\tests\stubs -I software\md\include -I software\usb\joystick\include software\md\src\md_pad.c software\md\src\md_port.c software\md\src\msx_output.c software\md\tests\md_io_test.c -o software\md\build\md_io_test.exe
 .\software\md\build\md_io_test.exe
 ```
 

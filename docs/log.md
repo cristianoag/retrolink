@@ -4,12 +4,19 @@
 
 ### USB
 
-#### Firmware v1.10 - 2026-10-06
+#### Mouse Firmware v1.00 - 2026-10-07
 
+- Added the USB mouse firmware in `software/usb/mouse/` for USB hardware revision `1.10`, exporting `retrolink-mouse-1.00.uf2` alongside the joystick UF2s in `firmware/usb/`.
+- Implemented the MSX mouse protocol: GPIO5/DB9 pin 8 strobe edges select signed X/Y nibbles on GPIO0/2/4/6, with a 1.5 ms resync timeout and a zeroed alternate cycle; left/right buttons drive GPIO1/3.
+- Added core 1 RAM-resident strobe handling, boot and report-descriptor mouse decoding, movement scaling with carry, left-button joystick emulation, CDC diagnostics, and native regression tests; physical MSX validation remains pending.
+
+#### Joystick Firmware v1.10 - 2026-10-06
+
+- Moved the joystick source to `software/usb/joystick/` and renamed the joystick UF2s to `retrolink-joystick-<version>.uf2` on 2026-10-07; release contents are unchanged and the Makefile now generates the new name.
 - Set the build firmware and hardware identifiers to `1.10`, matching USB hardware revision `1.10` GPIO assignments, and exported `retrolink-1.10.uf2`; the Makefile now passes its version to CMake.
 - Added a tested USB joystick list to `firmware/README.md`; Hyperkin Trooper 2, Dazz Dual Shock, a generic USB Super Nintendo clone, and Datafrog Wireless work with firmware `1.10` on hardware revision `1.10`, while an Xbox One controller does not.
 
-#### Firmware v1.00 - 2026-09-20
+#### Joystick Firmware v1.00 - 2026-09-20
 
 - Defined initial firmware-facing module boundaries and GPIO constants for the future RP2040 Zero implementation.
 - Set the initial firmware and specification version to `1.00`.
@@ -29,6 +36,7 @@
 - Bumped MD firmware and hardware identifiers to `1.10` and exported `retrolink-md-1.10.uf2`; GPIO assignments match MD hardware revision `1.10` unchanged, and the Makefile now passes its version to CMake.
 - Added raw TH-phase D0..D5 samples and the MSX pin 8 common level to USB-C CDC diagnostics, with 1 s status heartbeats.
 - Added a tested MegaDrive joystick list to `firmware/README.md`; the 8BitDo M30 with Mega Drive adapter works with firmware `1.10` on hardware revision `1.10`.
+- Pointed the MD build's shared LED and `joystick.h` sources to `software/usb/joystick/` after the USB source split on 2026-10-07; MD firmware behavior is unchanged.
 
 #### Firmware v1.00 - 2026-09-23
 

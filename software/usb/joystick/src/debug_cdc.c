@@ -8,6 +8,10 @@
 
 #include "retrolink/board_config.h"
 
+#ifndef RETROLINK_DEBUG_CDC_INPUT_NAME
+#define RETROLINK_DEBUG_CDC_INPUT_NAME "USB HID joystick/gamepad"
+#endif
+
 static bool was_connected = false;
 static absolute_time_t next_heartbeat;
 
@@ -23,7 +27,7 @@ void debug_cdc_task(void)
 
     if (connected && !was_connected) {
         debug_cdc_log("RetroLink CDC connected\r\n");
-        debug_cdc_log("Waiting for USB HID joystick/gamepad reports on USB-A host port\r\n");
+        debug_cdc_log("Waiting for " RETROLINK_DEBUG_CDC_INPUT_NAME " reports on USB-A host port\r\n");
     }
 
     was_connected = connected;

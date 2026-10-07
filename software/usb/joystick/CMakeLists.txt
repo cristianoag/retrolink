@@ -74,13 +74,13 @@ pico_enable_stdio_usb(retrolink 0)
 pico_enable_stdio_uart(retrolink 0)
 pico_add_extra_outputs(retrolink)
 
-set(RETROLINK_UF2_OUTPUT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../firmware/usb)
+set(RETROLINK_UF2_OUTPUT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../firmware/usb)
 
 add_custom_target(retrolink_export_uf2 ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory ${RETROLINK_UF2_OUTPUT_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_BINARY_DIR}/retrolink.uf2
-        ${RETROLINK_UF2_OUTPUT_DIR}/retrolink-${RETROLINK_FW_VERSION}.uf2
+        ${RETROLINK_UF2_OUTPUT_DIR}/retrolink-joystick-${RETROLINK_FW_VERSION}.uf2
     DEPENDS retrolink
-    COMMENT "Copying RetroLink USB UF2 to firmware/usb/"
+    COMMENT "Copying RetroLink USB joystick UF2 to firmware/usb/"
 )

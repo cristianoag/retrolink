@@ -1,6 +1,6 @@
 # The Retro Hacker RetroLink
 
-RetroLink is an open-source hardware and firmware project for connecting controllers to classic MSX computers through the MSX DB9 General Purpose port. **RetroLink USB** connects USB HID joysticks and gamepads. **RetroLink MD** translates Mega Drive/Genesis 3-button and 6-button controller signals into MSX joystick signals. Both variants use an RP2040 Zero.
+RetroLink is an open-source hardware and firmware project for connecting controllers to classic MSX computers through the MSX DB9 General Purpose port. **RetroLink USB** connects USB HID joysticks and gamepads, or USB mice when flashed with the mouse firmware. **RetroLink MD** translates Mega Drive/Genesis 3-button and 6-button controller signals into MSX joystick signals. Both variants use an RP2040 Zero.
 
 ### RetroLink USB
 
@@ -45,7 +45,7 @@ Back of the MD PCB (3D render):
 
 | Variant | Input | Hardware | Software and firmware |
 | --- | --- | --- | --- |
-| RetroLink USB | USB HID joystick/gamepad | Latest: [revision `1.10`](hardware/usb/1.10); earlier revisions under [hardware/usb](hardware/usb) | [USB source](software/usb) and [UF2 artifacts](firmware/usb); firmware `1.10` |
+| RetroLink USB | USB HID joystick/gamepad, or USB HID mouse | Latest: [revision `1.10`](hardware/usb/1.10); earlier revisions under [hardware/usb](hardware/usb) | [Joystick source](software/usb/joystick) (firmware `1.10`), [mouse source](software/usb/mouse) (firmware `1.00`), and [UF2 artifacts](firmware/usb) |
 | RetroLink MD | Mega Drive/Genesis 3-/6-button controller | [Revision `1.10`](hardware/md/1.10) | [MD source](software/md) and [UF2 artifacts](firmware/md); firmware `1.10` |
 
 The [USB specification](docs/specification.md) is version `1.00` and describes USB hardware revision `1.00`, not the MD variant. See the [MD wiring and behavior guide](software/md/README.md) for MD details and [docs/log.md](docs/log.md) for both variants' change log. Revisions are organized within each variant; a hardware directory does not imply a corresponding firmware release.
@@ -54,8 +54,9 @@ The [USB specification](docs/specification.md) is version `1.00` and describes U
 
 | Path | Purpose |
 | --- | --- |
-| [software/usb](software/usb) | USB RP2040 source code using the Raspberry Pi Pico SDK, TinyUSB, and Pico-PIO-USB. |
-| [firmware/usb](firmware/usb) | USB UF2 firmware artifacts. |
+| [software/usb/joystick](software/usb/joystick) | USB joystick/gamepad firmware source using the Raspberry Pi Pico SDK, TinyUSB, and Pico-PIO-USB; also hosts sources shared with the mouse and MD builds. |
+| [software/usb/mouse](software/usb/mouse) | USB mouse-to-MSX mouse firmware source for the same USB hardware. |
+| [firmware/usb](firmware/usb) | USB joystick and mouse UF2 firmware artifacts. |
 | [hardware/usb](hardware/usb) | USB KiCad project files by hardware revision. |
 | [software/md](software/md), [firmware/md](firmware/md), [hardware/md](hardware/md) | MD controller-to-MSX source, generated UF2 firmware, and hardware revisions. |
 | [images](images) | PCB preview renders used in this README. |
@@ -72,17 +73,20 @@ Initialize submodules after cloning:
 git submodule update --init --recursive
 ```
 
-Build from the firmware source folder:
+Build from the firmware source folder for the device you will connect:
 
 ```powershell
-cd software\usb
+cd software\usb\joystick   # USB joysticks/gamepads
+make
+cd ..\mouse                # USB mice
 make
 ```
 
-The build generates a versioned UF2 file:
+Each build generates a versioned UF2 file for the same USB hardware:
 
 ```text
-firmware/usb/retrolink-1.00.uf2
+firmware/usb/retrolink-joystick-1.10.uf2
+firmware/usb/retrolink-mouse-1.00.uf2
 ```
 
 On Windows, the Makefile discovers Pico SDK-managed tools under `%USERPROFILE%\.pico-sdk`. Override `PICO_SDK_ROOT`, `PICO_SDK_PATH`, `PICO_TOOLCHAIN_PATH`, `CMAKE`, `CMAKE_MAKE_PROGRAM`, `PYTHON3_EXECUTABLE`, `PICOTOOL_DIR`, `PIOASM_DIR`, or `PICO_PIO_USB_PATH` if your toolchain is installed elsewhere.
@@ -109,9 +113,13 @@ MD [revision `1.10`](hardware/md/1.10) also has a [dual-DB9 four-clip PLA case](
 
 The MD build disables the RP2040 B0/B1 USB enumeration workaround because it takes over GPIO15 (MD SELECT); B2 silicon is preferred for USB-C diagnostics.
 
-## RetroLink USB Firmware Behavior
+## RetroLink USB Joystick Firmware Behavior
 
-USB firmware version `1.10` decodes standard USB HID joystick/gamepad axes, hats, and buttons into six active-low MSX outputs: GPIO0/2/4/6 for up/down/left/right, GPIO1 for button A, and GPIO3 for button B. GPIO5 is reserved for the MSX OUT/strobe input, unused in joystick mode. Button usages 1 and 2 map to A and B. Outputs release to high impedance when inactive. The current source requires updated MSX wiring and USB-A D+/D- on GPIO27/28, not the original hardware revision `1.00` wiring. USB-C CDC provides diagnostics, and the RP2040 Zero status LED pulses on newly asserted controls. See [software/usb/README.md](software/usb/README.md#current-behavior) for supported layouts, decoder limits, and tests; physical controller/MSX validation remains required.
+USB joystick firmware version `1.10` (`retrolink-joystick-1.10.uf2`) decodes standard USB HID joystick/gamepad axes, hats, and buttons into six active-low MSX outputs: GPIO0/2/4/6 for up/down/left/right, GPIO1 for button A, and GPIO3 for button B. GPIO5 is reserved for the MSX OUT/strobe input, unused in joystick mode. Button usages 1 and 2 map to A and B. Outputs release to high impedance when inactive. The current source requires updated MSX wiring and USB-A D+/D- on GPIO27/28, not the original hardware revision `1.00` wiring. USB-C CDC provides diagnostics, and the RP2040 Zero status LED pulses on newly asserted controls. See [software/usb/joystick/README.md](software/usb/joystick/README.md#current-behavior) for supported layouts, decoder limits, and tests; physical controller/MSX validation remains required.
+
+## RetroLink USB Mouse Firmware Behavior
+
+USB mouse firmware version `1.00` (`retrolink-mouse-1.00.uf2`) runs on the same USB hardware revision `1.10`. It implements the MSX mouse protocol: each DB9 pin 8 (GPIO5) strobe edge places the next nibble of the signed X/Y movement on pins 1-4 (GPIO0/2/4/6). The left and right buttons drive pins 6/7 (GPIO1/3). A dedicated RP2040 core answers strobe edges in well under a microsecond. Boot-protocol and report-descriptor mice are supported, including report IDs and 12/16-bit axes. Holding the left button while connecting the mouse selects MSX-mouse-style joystick emulation. See [software/usb/mouse/README.md](software/usb/mouse/README.md#current-behavior) for protocol timing, scaling, limits, and tests; validation with a physical MSX remains required.
 
 The current status LED implementation assumes the common RP2040 Zero onboard WS2812-compatible LED on GPIO 16. Validate this against the exact board variant before treating the build as hardware-final.
 

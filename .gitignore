@@ -2,6 +2,7 @@
 .vscode/*
 .vscode/**
 software/build/
-software/usb/build/
+software/usb/joystick/build/
+software/usb/mouse/build/
 software/md/build/
 software/md/build-tests/

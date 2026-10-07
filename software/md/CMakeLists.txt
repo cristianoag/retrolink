@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 option(RETROLINK_HOST_TESTS "Build native MD regression tests without the Pico SDK" OFF)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(RETROLINK_SHARED_DIR ${CMAKE_CURRENT_LIST_DIR}/../usb)
+set(RETROLINK_SHARED_DIR ${CMAKE_CURRENT_LIST_DIR}/../usb/joystick)
 
 if(RETROLINK_HOST_TESTS)
     project(retrolink_md_tests C)
