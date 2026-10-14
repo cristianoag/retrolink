@@ -2,10 +2,10 @@
 
 Two-piece PLA enclosure for the [MD revision 1.10 PCB](../retrolink.kicad_pcb),
 with a **male DB9 for the Mega Drive controller** and a **female DB9 for the MSX**.
-The plastic envelope is **54.19 x 33.50 x 19.70 mm**: 4 mm longer toward the male
-connector than the original MD case. Width and height still match the
-[USB 1.10 case](../../../usb/1.10/case/README.md). The female end, PCB and clips
-stay in their previous assembly positions.
+The plastic envelope is **52.19 x 33.50 x 19.70 mm**. Both DB9 ends are shortened
+by 1 mm relative to the previous 54.19 mm case to improve connector access.
+Width and height still match the [USB 1.10 case](../../../usb/1.10/case/README.md).
+The PCB, clips and locating stops stay in their previous assembly positions.
 
 Four short internal clips, alignment keys, over-travel stops and tight PCB end
 stops carry over from USB. There are **no screws or long latches**. USB-C is
@@ -25,7 +25,7 @@ every real cable/port housing. Test one complete pair before use on equipment.
 | [Lid STL](retrolink-md-1.10-lid.stl) | MD top half, oriented with its outside face on the print bed. |
 | [Case STEP](retrolink-md-1.10-case.step) | Two assembled plastic solids for CAD editing. |
 | [Generator](md_case.py) | MD connector openings, assembly checks and CLI. |
-| [Tests](test_md_case.py) | Twelve MD geometry regressions, including one-sided extension and mirrored end profiles. |
+| [Tests](test_md_case.py) | Twelve MD geometry regressions, including 1 mm trimming at each end and mirrored end profiles. |
 | [Dependencies](requirements.txt) | Reuses the USB enclosure's pinned CAD dependencies. |
 
 Dimensions are in **millimetres**. Slice at **100% scale**. Use both MD parts
@@ -38,9 +38,9 @@ exports contain only the plastic case.
 
 | Feature | Default |
 | --- | --- |
-| Plastic envelope, excluding exposed connectors | **54.19 x 33.50 x 19.70 mm** |
+| Plastic envelope, excluding exposed connectors | **52.19 x 33.50 x 19.70 mm** |
 | PCB | 43 x 28 x 1.6 mm; 2 mm corner radius |
-| Shell wall / roof / floor | 2.4 mm, except local pad recesses |
+| Side walls / roof / floor | 2.4 mm, except local pad recesses; DB9 end walls shortened by 1 mm |
 | Individual clip lengths, including roots | 14.7 / 14.1 mm |
 | Clip beams / root radius | 1.2 x 4.8 mm / 1.2 mm in the bending plane |
 | Clip engagement | 0.20 mm nominal |
@@ -50,10 +50,11 @@ exports contain only the plastic case.
 | Female DB9 rear-shell opening | 20.4 mm wide x 11.9 mm high |
 | Programming opening | None; USB-C remains internal |
 
-The male end now uses a mirrored copy of the female end's opening, shallow
-mounting reliefs, pad recesses, wall thickness and low split seam. The old
-male-specific circular through-passages are removed. The two end profiles are
-checked for matching geometry, not merely equal opening dimensions.
+The male end uses a mirrored copy of the female end's opening, pad recesses,
+wall thickness and low split seam. The old male-specific circular through-passages
+remain removed; shortening also eliminates the shallow mounting reliefs at the
+outermost ends. The two end profiles are checked for matching geometry, not
+merely equal opening dimensions.
 
 This change follows the reported error in the supplied male connector model.
 The female flange remains exposed as before. The actual male flange and plug
@@ -63,22 +64,24 @@ model is not evidence of fit for the replacement profile.
 The main PCB matches the USB outline, but the RP2040 Zero sits **2.835 mm farther
 toward the male DB9**. Its adjacent clip over-travel stops are repositioned to
 avoid the module substrate. Board end stops and PCB supports remain in place;
-the extension does not add PCB travel or move the electronics.
+shortening the ends does not add PCB travel or move the electronics.
 
 ### Size excludes protruding connectors
 
-The 54.19 mm dimension measures only the plastic, from x=-6.75 to x=47.44 mm
+The 52.19 mm dimension measures only the plastic, from x=-5.75 to x=46.44 mm
 in PCB coordinates. Do not use the known incorrect male model to infer the
 finished adapter's tip-to-tip length.
 
 ## Connector support and rubber pads
 
 The female **MSX end** retains the USB design's padded metal-backshell cradle.
-Fit **two soft nonconductive rubber or silicone strips, 2 x 12 x 1 mm each**:
+Fit **two soft nonconductive rubber or silicone strips, 1.5 x 12 x 1 mm each**:
 
 - Place one under and one above the female connector's rear flat metal shell.
 - Use approximately Shore A 20-30 material. Do not substitute hard shims.
-- Nominal pad compression is 0.20 mm each; each contact land is 24 mm2.
+- Nominal pad compression is 0.20 mm each; each contact land is 18 mm2.
+- Trim the former 2 mm-wide pads to 1.5 mm so they remain fully supported within
+  the shortened end. This reduces the contact area; recheck frictional retention.
 - Keep pad plus adhesive thickness at 1 mm. Start with a dry fit without pads,
   then check that adding them does not make closing force excessive.
 
@@ -178,7 +181,7 @@ rather than continuing to exclude it.
 
 Validation covers:
 
-- A 4 mm male-only extension, unchanged width/height, four clips and 0.20 mm PCB travel.
+- Exactly 1 mm removed from each previous end, unchanged width/height, four clips and 0.20 mm PCB travel.
 - No nominal PCB, half-to-half or remaining MD component overlap.
 - Board and lid insertion at twelve sampled heights, excluding the male connector.
 - Mirrored end profiles, removed through-passages and a closed USB-C side.

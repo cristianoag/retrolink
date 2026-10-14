@@ -3,7 +3,7 @@
 import unittest
 from dataclasses import replace
 
-from md_case import Dimensions, build, exclude_incorrect_male_model, mirror_end, port_tools, usb, validate
+from md_case import Dimensions, build, exclude_incorrect_male_model, mirror_end, pads, port_tools, usb, validate
 
 
 class MDEnclosureTests(unittest.TestCase):
@@ -12,15 +12,17 @@ class MDEnclosureTests(unittest.TestCase):
         cls.d = Dimensions()
         cls.base, cls.lid = build(cls.d)
 
-    def test_four_mm_extension_only_toward_male(self):
+    def test_one_mm_removed_from_each_previous_end(self):
         validate(self.base, self.lid, self.d)
         usb_base, usb_lid = usb.build(usb.Dimensions())
         actual = self.base.fuse(self.lid).BoundingBox()
         reference = usb_base.fuse(usb_lid).BoundingBox()
-        for dimension, target in zip(("xlen", "ylen", "zlen"), (54.19, 33.50, 19.70)):
+        for dimension, target in zip(("xlen", "ylen", "zlen"), (52.19, 33.50, 19.70)):
             self.assertAlmostEqual(getattr(actual, dimension), target, places=5)
-        self.assertAlmostEqual(actual.xmin, reference.xmin - 4, places=5)
-        for dimension in ("xmax", "ymin", "ymax", "zmin", "zmax"):
+        previous_xmin, previous_xmax = reference.xmin - 4, reference.xmax
+        self.assertAlmostEqual(actual.xmin, previous_xmin + 1, places=5)
+        self.assertAlmostEqual(actual.xmax, previous_xmax - 1, places=5)
+        for dimension in ("ymin", "ymax", "zmin", "zmax"):
             self.assertAlmostEqual(getattr(actual, dimension), getattr(reference, dimension), places=5)
 
     def test_both_db9_ports_and_flanges_clear(self):
@@ -32,14 +34,15 @@ class MDEnclosureTests(unittest.TestCase):
 
     def test_end_profiles_are_exact_mirrors(self):
         d = self.d
-        slab = usb.box(d.xmax - 3.0, d.xmax + 1, d.ymin - 1, d.ymax + 1, d.bottom - 1, d.top + 1)
+        # Compare end walls without the intentionally different PCB locating stops.
+        slab = usb.box(44.51, d.xmax + 1, d.ymin - 1, d.ymax + 1, d.bottom - 1, d.top + 1)
         for part in (self.base, self.lid):
             female = part.intersect(slab)
             male = mirror_end(part.intersect(mirror_end(slab, d)), d)
             self.assertLess(female.cut(male).Volume() + male.cut(female).Volume(), 1e-5)
         # The previous long circular passages are now backed by solid plastic.
         for y in (1.51, 26.50):
-            plug = usb.box(d.xmin + 1.2, d.xmin + 2.4, y - 0.4, y + 0.4, 0.2, 1.5)
+            plug = usb.box(d.xmin + 0.2, d.xmin + 1.4, y - 0.4, y + 0.4, 0.2, 1.5)
             self.assertLess(plug.cut(self.base.fuse(self.lid)).Volume(), 1e-5)
 
     def test_bad_model_exclusion_requires_known_signature(self):
@@ -105,16 +108,17 @@ class MDEnclosureTests(unittest.TestCase):
             )
 
     def test_msx_pad_support_and_print_orientation(self):
-        lower, upper = usb.pads(self.d)
+        lower, upper = pads(self.d)
         for pad in (lower, upper):
-            self.assertAlmostEqual(pad.Volume(), 24)
+            self.assertAlmostEqual(pad.Volume(), 18)
+            self.assertLessEqual(pad.BoundingBox().xmax, self.d.xmax)
             for part in (self.base, self.lid):
                 self.assertLess(part.intersect(pad).Volume(), 1e-5)
         self.assertAlmostEqual(
-            self.base.intersect(lower.translate((0, 0, -0.01))).Volume() / 0.01, 24, places=4
+            self.base.intersect(lower.translate((0, 0, -0.01))).Volume() / 0.01, 18, places=4
         )
         self.assertAlmostEqual(
-            self.lid.intersect(upper.translate((0, 0, 0.01))).Volume() / 0.01, 24, places=4
+            self.lid.intersect(upper.translate((0, 0, 0.01))).Volume() / 0.01, 18, places=4
         )
         for shape in usb.print_shapes(self.base, self.lid, self.d):
             self.assertEqual(len(shape.Solids()), 1)
@@ -130,7 +134,7 @@ class MDEnclosureTests(unittest.TestCase):
             validate(base, lid, d)
             self.assert_board_travel(base, d)
             b = base.fuse(lid).BoundingBox()
-            self.assertAlmostEqual(b.xlen, 54.19, places=5)
+            self.assertAlmostEqual(b.xlen, 52.19, places=5)
             self.assertAlmostEqual(b.ylen, 33.5, places=5)
             self.assertAlmostEqual(b.zlen, 19.7, places=5)
 

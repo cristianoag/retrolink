@@ -1,4 +1,4 @@
-"""MD 1.10 enclosure, extended 4 mm toward the male DB9 with mirrored end profiles."""
+"""MD 1.10 enclosure with mirrored end profiles, shortened 1 mm at each DB9 end."""
 
 import argparse
 import importlib.util
@@ -22,7 +22,11 @@ spec.loader.exec_module(usb)
 class Dimensions(usb.Dimensions):
     @property
     def xmin(self):
-        return super().xmin - 4.0
+        return super().xmin - 3.0
+
+    @property
+    def xmax(self):
+        return super().xmax - 1.0
 
 
 def mirror_end(shape, d):
@@ -31,8 +35,18 @@ def mirror_end(shape, d):
 
 def port_tools(d):
     tools = {name: tool for name, tool in usb.port_tools(d).items() if name != "usb_a"}
+    tools["lower_pad_pocket"] = usb.box(44.85, 46.45, 7.9, 20.1, d.lower_pad_seat, -4.7)
+    tools["upper_pad_pocket"] = usb.box(44.85, 46.45, 7.9, 20.1, 5.9, d.upper_pad_seat)
     tools.update({f"male_{name}": mirror_end(tool, d) for name, tool in list(tools.items())})
     return tools
+
+
+def pads(d, compressed=False):
+    thickness = d.pad_gap if compressed else d.pad_thickness
+    return (
+        usb.box(44.9, 46.4, 8, 20, d.lower_pad_seat, d.lower_pad_seat + thickness),
+        usb.box(44.9, 46.4, 8, 20, d.upper_pad_seat - thickness, d.upper_pad_seat),
+    )
 
 
 def build(d):
@@ -103,9 +117,9 @@ def validate(base, lid, d, assembly_path=None):
         ]
         if len(metal) != 1:
             raise ValueError("Cannot identify MSX female DB9 metal shell")
-        for pad, compressed in zip(usb.pads(d), usb.pads(d, compressed=True)):
+        for pad, compressed in zip(pads(d), pads(d, compressed=True)):
             contact = pad.intersect(metal[0]).Volume()
-            if abs(contact - 24 * d.pad_compression) > 1e-4:
+            if abs(contact - 18 * d.pad_compression) > 1e-4:
                 raise ValueError("MSX pad does not contact the full metal land")
             if abs(pad.intersect(assembly).Volume() - contact) > 1e-4:
                 raise ValueError("MSX pad contacts a non-shell component")
@@ -130,7 +144,8 @@ def main():
     )
     base, lid = build(d)
     electronics = validate(base, lid, d, args.assembly)
-    usb.export(base, lid, d, args.output, electronics, stem="retrolink-md-1.10")
+    usb.export(base, lid, d, args.output, electronics, stem="retrolink-md-1.10",
+               pad_shapes=pads(d, compressed=True))
     print(f"MD case: {d.xmax - d.xmin:.2f} x {d.ymax - d.ymin:.2f} x {d.top - d.bottom:.2f} mm")
 
 

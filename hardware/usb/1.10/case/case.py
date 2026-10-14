@@ -342,7 +342,7 @@ def validate(base, lid, d, assembly_path=None):
     return assembly
 
 
-def preview(base, lid, d, destination, electronics=None):
+def preview(base, lid, d, destination, electronics=None, pad_shapes=None):
     import vtk
 
     window = vtk.vtkRenderWindow()
@@ -358,7 +358,7 @@ def preview(base, lid, d, destination, electronics=None):
             (base, (0.16, 0.26, 0.36)),
             (lid.translate((0, 0, lift)), (0.88, 0.53, 0.16)),
         ]
-        lower_pad, upper_pad = pads(d, compressed=True)
+        lower_pad, upper_pad = pads(d, compressed=True) if pad_shapes is None else pad_shapes
         shapes.extend([
             (lower_pad, (0.12, 0.12, 0.12)),
             (upper_pad.translate((0, 0, lift)), (0.12, 0.12, 0.12)),
@@ -414,7 +414,7 @@ def preview(base, lid, d, destination, electronics=None):
         raise ValueError("Preview export failed")
 
 
-def export(base, lid, d, output, electronics=None, stem="retrolink-usb-1.10"):
+def export(base, lid, d, output, electronics=None, stem="retrolink-usb-1.10", pad_shapes=None):
     output.mkdir(parents=True, exist_ok=True)
     for name, shape in zip(("base", "lid"), print_shapes(base, lid, d)):
         path = output / f"{stem}-{name}.stl"
@@ -431,7 +431,7 @@ def export(base, lid, d, output, electronics=None, stem="retrolink-usb-1.10"):
     reloaded = cq.importers.importStep(str(step)).val()
     if len(reloaded.Solids()) != 2 or not reloaded.isValid():
         raise ValueError("STEP round-trip did not preserve two valid solids")
-    preview(base, lid, d, output / "preview.png", electronics)
+    preview(base, lid, d, output / "preview.png", electronics, pad_shapes)
 
 
 def main():
