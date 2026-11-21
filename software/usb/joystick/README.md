@@ -35,14 +35,14 @@ cmake --build software/usb/joystick/build
 The expected firmware artifact is:
 
 ```text
-firmware/usb/retrolink-joystick-1.10.uf2
+firmware/usb/retrolink-joystick-1.20.uf2
 ```
 
 The Makefile passes `FIRMWARE_VERSION` to CMake, so the UF2 file name and the firmware's reported version stay in sync. Joystick UF2 files use the `retrolink-joystick-<version>.uf2` name; releases `1.00` and `1.10` were renamed from `retrolink-<version>.uf2` without changing their contents.
 
 ## Current Behavior
 
-Firmware version `1.10` initializes USB CDC debug on the RP2040 Zero USB-C port and TinyUSB host mode on the USB-A port through Pico-PIO-USB. Standard HID joystick/gamepad report descriptors determine the control locations; the first report is decoded immediately, not used as a neutral baseline.
+Firmware version `1.20` initializes USB CDC debug on the RP2040 Zero USB-C port and TinyUSB host mode on the USB-A port through Pico-PIO-USB. Standard HID joystick/gamepad report descriptors determine the control locations; the first report is decoded immediately, not used as a neutral baseline.
 
 The current build uses GPIO27 for USB-A D+ and GPIO28 for D-. This consecutive pair satisfies Pico-PIO-USB's DPDM pinout and does not overlap the MSX or status LED assignments. USB-C uses the native USB controller and is unaffected. GPIO27/28 must not also be used as ADC inputs or for other peripherals.
 
@@ -64,7 +64,15 @@ The unused USB VBUS enable/fault reservations on GPIO4/5 have been removed; the 
 
 Absolute X/Y axes use the descriptor's logical range: below 25% asserts left/up, above 75% asserts right/down, and the middle 50% is neutral. Four-way and eight-way hats are supported, including diagonal combinations for eight-way hats; values outside the logical range are neutral. Axis and D-pad directions are combined. Opposing directions cancel each other. Button usage numbers may not match the controller's printed labels.
 
-States are kept separately per report ID and interface and combined for the MSX port. Detach, truncated reports, and failed receive requests release the affected interface's contribution without releasing another controller's held controls. A failed receive request is logged; reconnect the controller to restart reception. Unknown report IDs leave the current state unchanged. The LED pulses on newly asserted decoded controls.
+States are kept separately per report ID and interface and combined for the MSX port. Detach, truncated reports, and failed receive requests release the affected interface's contribution without releasing another controller's held controls. Unknown report IDs leave the current state unchanged. The LED pulses on newly asserted decoded controls.
+
+Receivers can be connected after boot. After HID mount, the host checks each interface every 100 ms and queues a receive request if its endpoint is idle, so a failed submission no longer permanently stops polling. Normal report callbacks still queue the next request immediately; pending transfers are left alone, including receivers waiting for a wireless controller to pair or wake. Receive failures are logged once per failure episode, with a recovery message when a request is successfully queued. Disconnect cancels retries and releases that interface's controls.
+
+While no supported HID joystick is mounted, the host also checks USB-A discovery every five seconds. If a receiver is electrically connected but has not exposed a usable gamepad, it holds USB-A in bus reset for 50 ms, removes stale TinyUSB device/interface state, cancels any pending address-zero enumeration transfer, and queues fresh enumeration. Retries continue without a pairing time limit. This handles discovery failures that receive retries alone cannot fix. USB-C CDC stays active; the Pico, PIO resources, and USB host stack are not reinitialized.
+
+Automatic rediscovery stops as soon as any supported joystick mapping exists, even if its receive transfer is still waiting for wireless input. Thus already recognized controllers, including controllers behind a hub, are not periodically reset. If no supported joystick exists, recovery resets the entire USB-A tree, including any unsupported interfaces. This does not add vendor-specific pairing protocols or support for non-HID controllers.
+
+CDC now logs `USB discovery: no supported joystick; restarting USB-A enumeration`, followed by `USB discovery: receiver present; enumeration queued`, or reports that no electrical USB connection is detected. Physical late-connection validation is still required: after a delayed pairing, expect `HID mounted` and a `supported=1` mapping. Capture these discovery messages if it still fails.
 
 The decoder supports absolute variable fields in Joystick/Game Pad application collections, signed/unsigned fields up to 32 bits, and report IDs. It uses fixed limits: 32 mapped fields, 8 input report IDs, 512 input payload bits per report, 32 explicit local usages, 8 collection levels, and 4 global push levels. Oversized or unsupported descriptors are logged as `supported=0` and do not drive outputs. Array controls, relative axes, vendor-specific protocols, local delimiters, and long descriptor items are not supported; unsupported fields are ignored when other usable controls exist. USB mice are handled by the separate [mouse firmware](../mouse/README.md). These limits and mappings have not yet been validated against the user's physical controller.
 
@@ -77,6 +85,7 @@ The status LED implementation assumes the common RP2040 Zero onboard WS2812-comp
 - `joystick_state_t` is a bitmask of the six `JOYSTICK_*` controls, independent of GPIO assignments.
 - `hid_joystick_parse()` initializes a descriptor mapping and returns false with an empty mapping for unsupported or malformed descriptors.
 - `hid_joystick_decode()` updates the matching report state and returns the combined state; false indicates an invalid report and clears all states for that interface. Unknown IDs are ignored successfully. Pass a parsed mapping and a non-null output state pointer.
+- `usb_host_task()` must run alongside `tuh_task()` to recover idle HID endpoints and perform timed USB-A rediscovery; `tuh_task()` processes removal events while the recovery reset is held.
 - `msx_port_init()` releases all six GPIOs; `msx_port_set_state()` applies a complete logical state and cancels opposing directions. The trigger-A setter/getter remain available and preserve the other controls.
 
 ## Host Tests
@@ -88,6 +97,20 @@ gcc -std=c11 -Wall -Wextra -Werror -I software/usb/joystick/include software/usb
 ./software/usb/joystick/build/hid_joystick_test.exe
 gcc -std=c11 -Wall -Wextra -Werror -I software/usb/joystick/tests/stubs -I software/usb/joystick/include software/usb/joystick/src/msx_port.c software/usb/joystick/tests/msx_port_test.c -o software/usb/joystick/build/msx_port_test.exe
 ./software/usb/joystick/build/msx_port_test.exe
+gcc -std=c11 -Wall -Wextra -Werror -I software\usb\joystick\tests\stubs -I software\usb\joystick\include software\usb\joystick\src\usb_host.c software\usb\joystick\src\hid_joystick.c software\usb\joystick\tests\usb_host_test.c -o software\usb\joystick\build\usb_host_test.exe
+.\software\usb\joystick\build\usb_host_test.exe
 ```
 
-Tests cover descriptor bounds, report IDs, axes, hats, buttons, the exact GPIO assignments, high-impedance release, held-control continuity, and opposing directions. GPIO tests also verify that OUT/strobe and unrelated pins remain untouched. GPIO tests use a stub; they do not establish electrical or USB runtime correctness. On hardware, verify each direction and button, simultaneous controls, neutral release, and unplugging while controls are held.
+With `PICO_SDK_PATH` set, also run the discovery integration test against the SDK's real TinyUSB host, hub, and HID drivers (only the hardware controller and clock are simulated):
+
+```powershell
+$tinyusb = "$env:PICO_SDK_PATH\lib\tinyusb\src"
+gcc -std=c11 -Wall -Wextra -Werror -I software\usb\joystick\tests\tinyusb -I "$tinyusb" -I software\usb\joystick\tests\stubs -I software\usb\joystick\include software\usb\joystick\src\usb_host.c software\usb\joystick\src\hid_joystick.c software\usb\joystick\tests\usb_discovery_test.c "$tinyusb\tusb.c" "$tinyusb\host\usbh.c" "$tinyusb\host\hub.c" "$tinyusb\class\hid\hid_host.c" "$tinyusb\common\tusb_fifo.c" -o software\usb\joystick\build\usb_discovery_test.exe
+.\software\usb\joystick\build\usb_discovery_test.exe
+```
+
+The integration test exercises TinyUSB's finite enumeration failures, indefinitely pending address-zero transfers, and stalled report-descriptor requests. It verifies successful discovery and decoded button input after receiver readiness changes, and no repeated initialization or resets after mounting.
+
+Tests cover descriptor bounds, report IDs, axes, hats, buttons, the exact GPIO assignments, high-impedance release, held-control continuity, and opposing directions. GPIO tests also verify that OUT/strobe and unrelated pins remain untouched. USB host tests cover late mount, initial/rearm submission failures, exact 100 ms retry timing, busy endpoints, idle endpoints without a callback, independent devices/interfaces, report-state clearing, retry cancellation on disconnect, and address reuse. Discovery tests cover repeated five-second retries, the 50 ms reset, stale address-zero transfer cancellation, unsupported-to-supported receiver transitions, downstream enumeration cancellation, reset errors, pending-event deferral, unplugging during reset, and no resets of mapped controllers waiting for input. GPIO and USB host tests use stubs; they do not establish electrical or USB runtime correctness.
+
+On hardware, verify each direction and button, simultaneous controls, neutral release, and unplugging while controls are held. Also boot without the receiver, insert it after startup, wait at least 30 seconds before pairing/waking the controller, and unplug/reinsert it without resetting the Pico. Repeat with a receiver connected at boot and with a wired HID gamepad to check existing behavior. Keep the USB-C terminal open to verify it stays responsive during USB-A recovery.

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(RETROLINK_FW_VERSION "1.10" CACHE STRING "RetroLink USB firmware version")
+set(RETROLINK_FW_VERSION "1.20" CACHE STRING "RetroLink USB firmware version")
 set(RETROLINK_HW_REVISION "1.10" CACHE STRING "RetroLink USB hardware revision")
 
 if(NOT DEFINED PICO_SDK_PATH AND DEFINED ENV{PICO_SDK_PATH})

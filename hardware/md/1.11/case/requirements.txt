@@ -1,0 +1,1 @@
+-r ../../../usb/1.10/case/requirements.txt

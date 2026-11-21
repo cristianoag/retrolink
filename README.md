@@ -41,7 +41,7 @@ Hardware highlights (latest revision `1.10`):
 
 | Variant | Input | Hardware | Software and firmware |
 | --- | --- | --- | --- |
-| RetroLink USB | USB HID joystick/gamepad, or USB HID mouse | Latest: [revision `1.10`](hardware/usb/1.10); earlier revisions under [hardware/usb](hardware/usb) | [Joystick source](software/usb/joystick) (firmware `1.10`), [mouse source](software/usb/mouse) (firmware `1.00`), and [UF2 artifacts](firmware/usb) |
+| RetroLink USB | USB HID joystick/gamepad, or USB HID mouse | Latest: [revision `1.10`](hardware/usb/1.10); earlier revisions under [hardware/usb](hardware/usb) | [Joystick source](software/usb/joystick) (firmware `1.20`), [mouse source](software/usb/mouse) (firmware `1.00`), and [UF2 artifacts](firmware/usb) |
 | RetroLink MD | Mega Drive/Genesis 3-/6-button controller | Latest: [revision `1.10`](hardware/md/1.10); earlier revisions under [hardware/md](hardware/md) | [MD source](software/md) and [UF2 artifacts](firmware/md) (firmware `1.10`) |
 
 See [firmware/README.md](firmware/README.md) for tested controllers, [docs/log.md](docs/log.md) for the hardware and firmware version history, and the individual firmware guides ([USB Joystick](software/usb/joystick/README.md), [USB Mouse](software/usb/mouse/README.md), and [MD](software/md/README.md)) for pinouts and technical details.
@@ -74,7 +74,7 @@ Quantities are per board for hardware revision `1.10`, matching the interactive 
    - On **RetroLink MD**, slide the controller-side male DE9 edge-mount connector (`J2`) onto the left edge of the PCB and solder both rows of contacts.
 6. **Flash the Firmware**:
    - Connect the RP2040 Zero to your computer with a USB-C data cable while holding the **BOOT** button (it will mount as a `RPI-RP2` USB drive).
-   - Copy the appropriate `.uf2` file from [firmware/usb](firmware/usb) (`retrolink-joystick-1.10.uf2` or `retrolink-mouse-1.00.uf2`) or [firmware/md](firmware/md) (`retrolink-md-1.10.uf2`) to the drive.
+   - Copy the appropriate `.uf2` file from [firmware/usb](firmware/usb) (`retrolink-joystick-1.20.uf2` or `retrolink-mouse-1.00.uf2`) or [firmware/md](firmware/md) (`retrolink-md-1.10.uf2`) to the drive.
    - To switch a RetroLink USB board between joystick and mouse modes later, simply re-enter `BOOT` mode and drop the other `.uf2` file onto the board.
 7. **Print the Enclosure (Optional)**: 3D-printable two-piece snap-fit PLA cases (STLs, STEP files, and print instructions) are available in [hardware/usb/1.10/case](hardware/usb/1.10/case/README.md) and [hardware/md/1.10/case](hardware/md/1.10/case/README.md).
 
@@ -143,7 +143,7 @@ make
 Each build generates a versioned UF2 file for the same USB hardware:
 
 ```text
-firmware/usb/retrolink-joystick-1.10.uf2
+firmware/usb/retrolink-joystick-1.20.uf2
 firmware/usb/retrolink-mouse-1.00.uf2
 ```
 

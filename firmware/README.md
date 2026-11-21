@@ -5,13 +5,13 @@ Generated firmware files are organized by variant:
 - [USB](usb/) contains the RetroLink USB board's UF2 releases: joystick firmware from [software/usb/joystick](../software/usb/joystick/) and mouse firmware from [software/usb/mouse](../software/usb/mouse/). Both run on the same USB hardware.
 - [MD](md/) contains the RetroLink MD (Mega Drive-to-MSX) UF2 releases; the current build produces `md/retrolink-md-1.10.uf2`.
 
-The current RetroLink USB joystick firmware version `1.10` build produces:
+The current RetroLink USB joystick firmware version `1.20` build produces:
 
 ```text
-usb/retrolink-joystick-1.10.uf2
+usb/retrolink-joystick-1.20.uf2
 ```
 
-The earlier `usb/retrolink-joystick-1.00.uf2` release remains available. Joystick releases were renamed from `retrolink-<version>.uf2` to `retrolink-joystick-<version>.uf2`; their contents are unchanged.
+The earlier `usb/retrolink-joystick-1.00.uf2` and `usb/retrolink-joystick-1.10.uf2` releases remain available. Those releases were renamed from `retrolink-<version>.uf2` to `retrolink-joystick-<version>.uf2`; their contents are unchanged.
 
 The RetroLink USB mouse firmware version `1.00` build produces:
 
@@ -30,6 +30,10 @@ No mice recorded.
 ## Tested USB Joysticks
 
 Controllers tested on real hardware with each USB firmware version. Controllers not listed have not been tested.
+
+### Firmware 1.20
+
+Physical controller validation is pending. This version adds USB-A rediscovery for delayed wireless receivers and recovery from failed HID receive submissions; hardware revision `1.10` is unchanged.
 
 ### Firmware 1.10
 

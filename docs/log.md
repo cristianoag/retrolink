@@ -4,6 +4,12 @@
 
 ### USB
 
+#### Joystick Firmware v1.20 - 2026-10-27
+
+- Bumped the USB joystick firmware to `1.20` for USB hardware revision `1.10`, exporting `retrolink-joystick-1.20.uf2` while preserving earlier UF2s.
+- Added five-second USB-A rediscovery with timed bus reset and stale-enumeration cleanup while no supported joystick is mounted, allowing delayed wireless receivers to retry without resetting the Pico; physical validation remains pending.
+- Added nonblocking 100 ms idle-HID receive recovery and hot-plug regression tests; mounted receivers no longer require reconnection after a failed receive submission.
+
 #### Mouse Firmware v1.00 - 2026-10-07
 
 - Added the USB mouse firmware in `software/usb/mouse/` for USB hardware revision `1.10`, exporting `retrolink-mouse-1.00.uf2` alongside the joystick UF2s in `firmware/usb/`.
@@ -48,6 +54,11 @@
 
 ### USB
 
+#### Hardware revision 1.11 - 2026-11-21
+
+- Added two 3.2 mm PCB mounting holes for M3 nylon screws and nuts.
+- Added M3 x 16 screw-head recesses in the USB case roof and nylon nut traps under the floor, with clip, connector and solder-keepout clearance checks; physical fit remains unvalidated.
+
 #### Hardware revision 1.10 - 2026-09-23
 
 - Raised the USB case's USB-A opening bottom by 1 mm, reducing its height to 8.5 mm without changing its top, width or the MD case.
@@ -66,6 +77,11 @@
 - Documented the current PCB layout, preview renders, iBOM, and four-part sourcing table, including unresolved protection and package requirements.
 
 ### MD
+
+#### Hardware revision 1.11 - 2026-11-21
+
+- Added two 3.2 mm PCB mounting holes for M3 nylon screws and nuts.
+- Added M3 x 16 screw-head recesses in the MD case roof and nylon nut traps under the floor, with connector and solder-keepout clearance checks; male-connector and physical fit remain unvalidated.
 
 #### Hardware revision 1.10 - 2026-10-06
 

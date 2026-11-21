@@ -1,4 +1,4 @@
-FIRMWARE_VERSION := 1.10
+FIRMWARE_VERSION := 1.20
 BUILD_DIR := build
 UF2_NAME := retrolink-joystick-$(FIRMWARE_VERSION).uf2
 UF2_OUTPUT := ../../../firmware/usb/$(UF2_NAME)
